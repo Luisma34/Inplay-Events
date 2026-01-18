@@ -8,7 +8,7 @@ El proyecto está orientado a entornos reales de clubes deportivos, ofreciendo u
 
 ---
 
-## 🎯 Objetivos del proyecto
+##  Objetivos del proyecto
 
 - Digitalizar la gestión diaria de un club de pádel.
 - Facilitar la reserva de pistas y clases.
@@ -20,7 +20,7 @@ El proyecto está orientado a entornos reales de clubes deportivos, ofreciendo u
 
 ---
 
-## 👥 Perfiles de usuario
+##  Perfiles de usuario
 
 - **Administrador (ADMIN)**  
   Control global del sistema: usuarios, ligas, pistas, contenidos y configuración general.
