@@ -22,7 +22,7 @@ public class Clasificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_clasificacion")
-    private Integer id;
+    private Liga idLiga;
 
     // Relación ManyToOne con Liga
     // Cada Clasificacion pertenece a una sola Liga pero una Liga puede tener muchas Clasificaciones
@@ -53,3 +53,4 @@ public class Clasificacion {
 
 
 }
+
