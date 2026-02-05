@@ -22,13 +22,13 @@ public class Clasificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_clasificacion")
-    private Liga idLiga;
+    private Integer idClasificacion;
 
     // Relación ManyToOne con Liga
     // Cada Clasificacion pertenece a una sola Liga pero una Liga puede tener muchas Clasificaciones
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_liga", nullable = false)
-    private Integer idLiga;
+    private Liga liga;
 
     @Column(nullable = false, name = "equipo")
     private String equipo;
