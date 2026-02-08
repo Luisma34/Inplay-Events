@@ -39,4 +39,14 @@ public class Resultado {
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
+    // El metodo prePersist se ejecuta automáticamente antes de que la entidad sea persistida en la base de datos.
+    // Aquí se establece la fecha de registro del resultado automáticamente a la fecha y hora actual.
+    // Esto garantiza que cada vez que se cree un nuevo resultado,
+    // la fecha de registro se establezca correctamente sin necesidad de que el cliente la proporcione.
+    @PrePersist
+    public void prePersist() {
+        this.fechaRegistro = LocalDateTime.now();
+    }
+
+
 }

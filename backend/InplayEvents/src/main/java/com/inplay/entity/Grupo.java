@@ -30,6 +30,14 @@ public class Grupo {
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
+    // PrePersist se ejecuta antes de que la entidad sea persistida en la base de datos.
+    // Aquí se establece la fecha de creación automáticamente.
+    @PrePersist
+    public void prePersist() {
+        this.fechaCreacion = LocalDateTime.now();
+    }
+
+
     @Column(name = "nivel_grupo", nullable = false)
     private Enum nivelGrupo;
 

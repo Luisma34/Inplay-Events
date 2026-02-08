@@ -34,5 +34,4 @@ public class LogAcceso {
     @Column(nullable = false)
     private Boolean exito;
 
-
 }
