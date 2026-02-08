@@ -44,6 +44,14 @@ public class LigaUsuario {
     @Column(name = "fecha_alta", nullable = false)
     private LocalDate fechaAlta;
 
+    // PrePersist se ejecuta antes de que la entidad sea persistida en la base de datos.
+    // Aquí se establece la fecha de alta automáticamente.
+    @PrePersist
+    public void prePersist() {
+        this.fechaAlta = LocalDate.now();
+    }
+
+
     //Tipos de rol en la liga
     public enum Rol {
         JUGADOR, CAPITAN, ORGANIZADOR

@@ -30,6 +30,16 @@ public class Noticia {
     @Column(name = "fecha_publicacion")
     private LocalDateTime fechaPublicacion;
 
+    // PrePersist se ejecuta antes de que la entidad sea persistida en la base de datos.
+    // Aquí se establece la fecha de publicación automáticamente.
+    // Esto garantiza que cada vez que se cree una nueva Noticia,
+    // la fecha de publicación se registre correctamente sin necesidad de que el cliente la proporcione.
+    @PrePersist
+    public void prePersist() {
+        this.fechaPublicacion = LocalDateTime.now();
+    }
+
+
     // Relación con Usuario (autor de la noticia).
     // Se utiliza FetchType.LAZY para cargar el usuario solo cuando sea necesario.
     // La columna "id_usuario" en la tabla "noticia" se usará para la relación.
