@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/clasificaciones")
 @RequiredArgsConstructor
@@ -14,18 +16,18 @@ public class ClasificacionController {
     private final ClasificacionService clasificacionService;
 
     @GetMapping
-    public ResponseEntity<Clasificacion> getClasificacion(@RequestParam Integer id) {
+    public ResponseEntity<List<Clasificacion>> getClasificacion(@RequestParam Integer id) {
         return ResponseEntity.ok(clasificacionService.obtenerTodas());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Clasificacion> obtener(@PathVariable Integer id) {
-        return ResponseEntity.ok(clasificacionService.obtenerPorId(id));
+        return ResponseEntity.ok(clasificacionService.obtenerporID(id));
     }
 
     @PostMapping
     public ResponseEntity<Clasificacion> crear(@RequestBody Clasificacion clasificacion) {
-        return ResponseEntity.ok(clasificacionService.crear(clasificacion));
+        return ResponseEntity.ok(clasificacionService.guardar(clasificacion));
     }
 
     @PutMapping("/{id}")
