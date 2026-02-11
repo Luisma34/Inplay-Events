@@ -37,6 +37,12 @@ public class Grupo {
         this.fechaCreacion = LocalDateTime.now();
     }
 
+    //Indica a JPA que el enum se guarda como texto en la base de datos
+    // en lugar de números. Esto evita errores si el orden del enum cambia
+    // en el futuro.
+    // Resultado en la tabla:
+    // * La columna "nivel_grupo" almacenará valores como:
+    // * PRINCIPIANTE, INTERMEDIO o AVANZADO.
     @Enumerated(EnumType.STRING)
     @Column(name = "nivel_grupo", nullable = false)
     private NivelGrupo nivelGrupo;
