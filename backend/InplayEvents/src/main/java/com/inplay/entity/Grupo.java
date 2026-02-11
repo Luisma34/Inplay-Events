@@ -37,9 +37,9 @@ public class Grupo {
         this.fechaCreacion = LocalDateTime.now();
     }
 
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "nivel_grupo", nullable = false)
-    private Enum nivelGrupo;
+    private NivelGrupo nivelGrupo;
 
     //Niveles de grupo
     public enum NivelGrupo {
