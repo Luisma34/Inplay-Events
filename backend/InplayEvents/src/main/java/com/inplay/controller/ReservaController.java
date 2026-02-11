@@ -1,5 +1,6 @@
 package com.inplay.controller;
 
+import com.inplay.entity.Liga;
 import com.inplay.entity.Reserva;
 import com.inplay.service.ReservaService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,12 @@ public class ReservaController {
     public ResponseEntity<List<Reserva>> getReservas() {
         List<Reserva> reservas = reservaService.obtenerReservas();
         return ResponseEntity.ok(reservas);
+    }
+
+    //Obtener cada reserva por su id.
+    @GetMapping("/{id}")
+    public ResponseEntity<Reserva> obtener(@PathVariable Integer id) {
+        return ResponseEntity.ok(reservaService.obtenerPorId(id));
     }
 
     // @RequestBody -> convierte el JSON del cuerpo de la solicitud en un objeto Reserva.

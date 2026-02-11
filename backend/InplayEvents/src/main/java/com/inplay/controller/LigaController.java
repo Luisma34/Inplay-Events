@@ -1,5 +1,6 @@
 package com.inplay.controller;
 
+import com.inplay.entity.Clasificacion;
 import com.inplay.entity.Liga;
 import com.inplay.service.LigaService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,12 @@ public class LigaController {
     public ResponseEntity<List<Liga>> getAllLigas() {
         List<Liga> ligas = ligaService.obtenerTodas();
         return ResponseEntity.ok(ligas);
+    }
+
+    //Obtener cada liga por su id.
+    @GetMapping("/{id}")
+    public ResponseEntity<Liga> obtener(@PathVariable Integer id) {
+        return ResponseEntity.ok(ligaService.obtenerPorId(id));
     }
 
     // El metodo createLiga() maneja las solicitudes POST a la ruta "/api/ligas".

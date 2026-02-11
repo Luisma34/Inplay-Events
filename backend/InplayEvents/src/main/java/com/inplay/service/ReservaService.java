@@ -1,6 +1,8 @@
 package com.inplay.service;
 
+import com.inplay.entity.Grupo;
 import com.inplay.entity.Reserva;
+import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.ReservaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,10 @@ public class ReservaService {
 
     public List<Reserva> obtenerReservas() {
         return reservaRepository.findAll();
+    }
+
+    public Reserva obtenerPorId(Integer id) {
+        return reservaRepository.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Reserva no encontrada"));
     }
 
     public List<Reserva> reservasPorFecha(LocalDate fecha) {

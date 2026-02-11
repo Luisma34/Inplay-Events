@@ -1,6 +1,7 @@
 package com.inplay.service;
 
 import com.inplay.entity.Clasificacion;
+import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.ClasificacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class ClasificacionService {
     // Busca una clasificación por su ID
 // Lanza excepción si no existe
     public Clasificacion obtenerporID(Integer id) {
-        return clasificacionRepository.findById(id).orElseThrow(() -> new RuntimeException("Clasificación no encontrada"));
+        return clasificacionRepository.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Clasificación no encontrada"));
     }
 
     // Actualiza los datos estadísticos de una clasificación existente

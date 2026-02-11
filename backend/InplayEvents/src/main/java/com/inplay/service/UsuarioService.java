@@ -1,6 +1,7 @@
 package com.inplay.service;
 
 import com.inplay.entity.Usuario;
+import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class UsuarioService {
             return usuarioRepository.save(usuario);
         } else {
             // Si el usuario no existe, lanzamos una excepcion.
-            throw new RuntimeException("Usuario no encontrado");
+            throw new RecursoNoEncontradoException("Usuario no encontrado");
         }
     }
 
