@@ -1,6 +1,6 @@
 package com.inplay.controller;
 
-import com.inplay.entity.Liga;
+
 import com.inplay.entity.Reserva;
 import com.inplay.service.ReservaService;
 import lombok.RequiredArgsConstructor;
