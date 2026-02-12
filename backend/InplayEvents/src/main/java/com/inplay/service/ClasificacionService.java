@@ -1,6 +1,7 @@
 package com.inplay.service;
 
 import com.inplay.entity.Clasificacion;
+import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.ClasificacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,5 +20,20 @@ public class ClasificacionService {
 
     public List<Clasificacion> obtenerTodas() {
         return clasificacionRepository.findAll();
+    }
+
+    public Clasificacion obtenerporID(Integer id) {
+        return clasificacionRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Clasificación no encontrada"));
+    }
+
+    public Clasificacion actualizar(Integer id, Clasificacion clasificacion) {
+        Clasificacion existente = obtenerporID(id);
+        clasificacion.setId(existente.getId());
+        return clasificacionRepository.save(clasificacion);
+    }
+
+    public void eliminar(Integer id) {
+        clasificacionRepository.deleteById(id);
     }
 }

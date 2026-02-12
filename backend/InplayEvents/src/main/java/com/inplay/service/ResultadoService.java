@@ -1,6 +1,7 @@
 package com.inplay.service;
 
 import com.inplay.entity.Resultado;
+import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.ResultadoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,13 @@ public class ResultadoService {
         return resultadoRepository.findAll();
     }
 
+    public Resultado obtenerPorId(Integer id) {
+        return resultadoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Resultado no encontrado"));
+    }
+
     public void eliminar(Integer id) {
+        obtenerPorId(id);
         resultadoRepository.deleteById(id);
     }
 }

@@ -23,34 +23,26 @@ public class UsuarioController {
     }
     // GET /api/usuarios/{id} -> Obtener un usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerPorId(Integer id) {
-        Usuario usuario = usuarioService.obtenerPorId(id);
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Usuario> obtenerPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
-    // POST /api/usuarios -> Crear un nuevo usuario
+
+    // POST /api/usuarios → crear
     @PostMapping
     public ResponseEntity<Usuario> crear(@RequestBody Usuario usuario) {
-        Usuario creado = usuarioService.guardar(usuario);
-        return ResponseEntity.ok(creado);
+        return ResponseEntity.ok(usuarioService.guardar(usuario));
     }
 
     // PUT /api/usuarios/{id} -> Actualizar un usuario existente
     // @PathVariable se usa para extraer el ID de la URL,
     // y @RequestBody para obtener los datos del usuario desde el cuerpo de la solicitud.
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
-        Usuario actualizado = usuarioService.actualizar(id, usuario);
-        if (actualizado != null) {
-            return ResponseEntity.ok(actualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Usuario> actualizar(@PathVariable Integer id,
+                                              @RequestBody Usuario usuario) {
+        return ResponseEntity.ok(usuarioService.actualizar(id, usuario));
     }
 
+    // DELETE /api/usuarios/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         usuarioService.eliminar(id);

@@ -1,6 +1,7 @@
 package com.inplay.service;
 
 import com.inplay.entity.Clase;
+import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.ClaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,14 @@ public class ClaseService {
         return claseRepository.findAll();
     }
 
+    public Clase obtenerPorId(Integer id) {
+        return claseRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Clase no encontrada"));
+    }
+
+
     public void eliminar(Integer id) {
+        obtenerPorId(id);
         claseRepository.deleteById(id);
     }
 }
