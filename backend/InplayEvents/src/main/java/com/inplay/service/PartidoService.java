@@ -1,7 +1,6 @@
 package com.inplay.service;
 
 import com.inplay.entity.Partido;
-import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.PartidoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ public class PartidoService {
     }
 
     public Partido obtenerPorId(Integer id) {
-        return partidoRepository.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Partido no encontrado."));
+        return partidoRepository.findById(id).orElse(null);
     }
 
     public void eliminar(Integer id) {

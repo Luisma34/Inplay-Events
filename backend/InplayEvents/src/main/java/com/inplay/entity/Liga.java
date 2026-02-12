@@ -45,15 +45,6 @@ public class Liga {
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    // PrePersist se ejecuta antes de que la entidad sea persistida en la base de datos.
-    // Aquí se establece la fecha de creación automáticamente.
-    // Esto garantiza que cada vez que se cree una nueva Liga,
-    // la fecha de creación se registre correctamente sin necesidad de que el cliente la proporcione.
-    @PrePersist
-    public void prePersist() {
-        this.fechaCreacion = LocalDateTime.now();
-    }
-
     //Estados posibles de la liga
     public enum Estado {
         ABIERTA, EN_CURSO, FINALIZADA, CANCELADA

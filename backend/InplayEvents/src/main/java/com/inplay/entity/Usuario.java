@@ -49,14 +49,4 @@ public class Usuario {
     @Column(name = "fecha_alta")
     private LocalDateTime fechaAlta;
 
-    // PrePersist se ejecuta antes de que la entidad sea persistida en la base de datos.
-    // Aquí se establece la fecha de alta automáticamente.
-    // Esto garantiza que cada vez que se cree un nuevo Usuario,
-    // la fecha de alta se registre correctamente sin necesidad de que el cliente la proporcione.
-    @PrePersist
-    public void prePersist() {
-        this.fechaAlta = LocalDateTime.now();
-    }
-
-
 }

@@ -1,8 +1,6 @@
 package com.inplay.service;
 
-import com.inplay.entity.Reserva;
 import com.inplay.entity.Sesion;
-import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.SesionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,10 +23,6 @@ public class SesionService {
     public void limpiarSesionesAntiguas() {
         LocalDate limite = LocalDate.now().minusDays(30);
         sesionRepository.borrarSesionesAntiguas(limite);
-    }
-
-    public Sesion obtenerPorId(Integer id) {
-        return sesionRepository.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Sesión no encontrada"));
     }
 
     // Crear sesión
