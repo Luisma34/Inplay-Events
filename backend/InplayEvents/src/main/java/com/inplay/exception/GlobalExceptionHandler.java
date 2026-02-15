@@ -14,7 +14,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    //Método privado que construye un objeto JSON de error estándar
+    //Metodo privado que construye un objeto JSON de error estándar
     private Map<String, Object> error(int status, String message) {
         // Creamos un mapa que Spring convertirá automáticamente a JSON
         Map<String, Object> body = new HashMap<>();
