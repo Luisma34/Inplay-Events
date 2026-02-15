@@ -23,6 +23,26 @@ public class GrupoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Grupo no encontrado"));
     }
 
+    public Grupo actualizar(Integer id, Grupo nuevo) {
+
+        Grupo existente = obtenerPorId(id);
+
+        if (nuevo.getNombre() != null)
+            existente.setNombre(nuevo.getNombre());
+
+        if (nuevo.getDescripcion() != null)
+            existente.setDescripcion(nuevo.getDescripcion());
+
+        if (nuevo.getFechaCreacion() != null)
+            existente.setFechaCreacion(nuevo.getFechaCreacion());
+
+        if (nuevo.getNivelGrupo() != null)
+            existente.setNivelGrupo(nuevo.getNivelGrupo());
+
+        return grupoRepository.save(existente);
+    }
+
+
     public List<Grupo> obtenerTodos() {
         return grupoRepository.findAll();
     }

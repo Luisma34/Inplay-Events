@@ -27,6 +27,25 @@ public class ClaseService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Clase no encontrada"));
     }
 
+    public Clase actualizar(Integer id, Clase nueva){
+
+        Clase existente = obtenerPorId(id);
+
+        if (nueva.getNombre() != null)
+            existente.setNombre(nueva.getNombre());
+
+        if (nueva.getNivel() != null)
+            existente.setNivel(nueva.getNivel());
+
+        if (nueva.getCapacidad() != null)
+            existente.setCapacidad(nueva.getCapacidad());
+
+        if (nueva.getActiva() != null)
+            existente.setActiva(nueva.getActiva());
+
+        return claseRepository.save(existente);
+    }
+
 
     public void eliminar(Integer id) {
         obtenerPorId(id);

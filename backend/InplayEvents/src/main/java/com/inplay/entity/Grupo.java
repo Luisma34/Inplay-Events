@@ -30,8 +30,10 @@ public class Grupo {
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "nivel_grupo", nullable = false)
-    private Enum nivelGrupo;
+    private NivelGrupo nivelGrupo;
+
 
     //Niveles de grupo
     public enum NivelGrupo {

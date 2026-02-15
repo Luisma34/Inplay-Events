@@ -23,9 +23,29 @@ public class LigaController {
     // El metodo getAllLigas() maneja las solicitudes GET a la ruta "/api/ligas".
     // Utiliza el servicio para obtener todas las ligas y devuelve una respuesta HTTP con la lista de ligas.
     @GetMapping
-    public ResponseEntity<List<Liga>> getAllLigas() {
+    public ResponseEntity<List<Liga>> obtenerTodas() {
         List<Liga> ligas = ligaService.obtenerTodas();
         return ResponseEntity.ok(ligas);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Liga> actualizar(@RequestBody Liga liga, @PathVariable Integer id){
+
+        Liga existente = ligaService.obtenerPorId(id);
+
+        if (liga.getNombre() != null)
+            existente.setNombre(liga.getNombre());
+
+        if (liga.getCategoria() != null)
+            existente.setCategoria(liga.getCategoria());
+
+        if (liga.getDivision() != null)
+            existente.setDivision(liga.getDivision());
+
+        if (liga.getEstado() != null)
+            existente.setEstado(liga.getEstado());
+
+        return ResponseEntity.ok(ligaService.guardar(existente));
     }
 
     // El metodo createLiga() maneja las solicitudes POST a la ruta "/api/ligas".
@@ -35,7 +55,7 @@ public class LigaController {
     @PostMapping
     public ResponseEntity<Liga> createLiga(@RequestBody Liga liga) {
         Liga createdLiga = ligaService.guardar(liga);
-        return ResponseEntity.ok(createdLiga);
+        return ResponseEntity.status(201).body(createdLiga);
     }
 
     // El metodo deleteLiga() maneja las solicitudes DELETE a la ruta "/api/ligas/{id}".
@@ -43,7 +63,7 @@ public class LigaController {
     // y devuelve una respuesta HTTP sin contenido.
     //@PathVariable se utiliza para indicar que el valor del ID debe ser extraído de la URL de la solicitud.
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLiga(@PathVariable Integer id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         ligaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

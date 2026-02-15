@@ -17,27 +17,21 @@ public class PartidoController {
     private final PartidoService partidoService;
 
     @PostMapping
-    public ResponseEntity<Partido> crear (@RequestBody Partido partido){
+    public ResponseEntity<Partido> crear(@RequestBody Partido partido) {
         return ResponseEntity.ok(partidoService.guardar(partido));
     }
 
     @GetMapping
-    public ResponseEntity<List<Partido>> listar(){
+    public ResponseEntity<List<Partido>> listar() {
         return ResponseEntity.ok(partidoService.obtenerTodos());
     }
 
-    @GetMapping ResponseEntity<Partido> actualizar(@PathVariable Integer id, @RequestBody Partido partido){
+    @PutMapping("{id}")
+    public ResponseEntity<Partido> actualizar(
+            @PathVariable Integer id,
+            @RequestBody Partido partido){
 
-        Partido existente = partidoService.obtenerPorId(id);
-
-        existente.setLiga(partido.getLiga());
-        existente.setJornada(partido.getJornada());
-        existente.setFecha(partido.getFecha());
-        existente.setParejaA(partido.getParejaA());
-        existente.setParejaB(partido.getParejaB());
-        existente.setEstado(partido.getEstado());
-
-        return ResponseEntity.ok(existente);
+        return ResponseEntity.ok(partidoService.actualizar(id, partido));
     }
 
     @DeleteMapping("/{id}")

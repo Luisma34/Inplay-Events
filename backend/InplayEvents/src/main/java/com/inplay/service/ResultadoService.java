@@ -27,6 +27,35 @@ public class ResultadoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Resultado no encontrado"));
     }
 
+    // Actualiza un resultado de forma segura.
+    // Solo se modifican los campos que el cliente envía.
+    // Si un campo viene null, se conserva el valor anterior.
+    // Evita borrar datos accidentalmente.
+    public Resultado actualizar(Integer id, Resultado nuevo) {
+
+        // Buscamos el resultado existente.
+        // Si no existe, lanzamos 404.
+        Resultado existente = obtenerPorId(id);
+
+        // Actualizamos solo campos informados.
+
+        if (nuevo.getPartido() != null)
+            existente.setPartido(nuevo.getPartido());
+
+        if (nuevo.getSetsParejaA() != null)
+            existente.setSetsParejaA(nuevo.getSetsParejaA());
+
+        if (nuevo.getSetsParejaB() != null)
+            existente.setSetsParejaB(nuevo.getSetsParejaB());
+
+        if (nuevo.getFechaRegistro() != null)
+            existente.setFechaRegistro(nuevo.getFechaRegistro());
+
+        // Guardamos y devolvemos el resultado actualizado
+        return resultadoRepository.save(existente);
+    }
+
+
     public void eliminar(Integer id) {
         obtenerPorId(id);
         resultadoRepository.deleteById(id);

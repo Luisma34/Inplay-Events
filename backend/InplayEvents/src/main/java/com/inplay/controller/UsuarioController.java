@@ -30,7 +30,7 @@ public class UsuarioController {
     // POST /api/usuarios → crear
     @PostMapping
     public ResponseEntity<Usuario> crear(@RequestBody Usuario usuario) {
-        return ResponseEntity.ok(usuarioService.guardar(usuario));
+        return ResponseEntity.status(201).body(usuarioService.guardar(usuario));
     }
 
     // PUT /api/usuarios/{id} -> Actualizar un usuario existente

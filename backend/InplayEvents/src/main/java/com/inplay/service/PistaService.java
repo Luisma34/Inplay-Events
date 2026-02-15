@@ -27,7 +27,25 @@ public class PistaService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pista no encontrada"));
     }
 
+    public Pista actualizar(Integer id, Pista nueva) {
+
+        Pista existente = obtenerPorId(id);
+
+        if (nueva.getNombre() != null)
+            existente.setNombre(nueva.getNombre());
+
+        if (nueva.getCubierta() != null)
+            existente.setCubierta(nueva.getCubierta());
+
+        if (nueva.getActiva() != null)
+            existente.setActiva(nueva.getActiva());
+
+        return pistaRepository.save(existente);
+    }
+
+
     public void eliminar(Integer id) {
+        obtenerPorId(id); // fuerza 404 si no existe
         pistaRepository.deleteById(id);
     }
 }

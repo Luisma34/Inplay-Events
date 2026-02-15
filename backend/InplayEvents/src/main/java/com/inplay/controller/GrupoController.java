@@ -16,9 +16,9 @@ public class GrupoController {
 
     private final GrupoService grupoService;
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<Grupo> crear(@RequestBody Grupo grupo) {
-        return ResponseEntity.ok(grupoService.guardar(grupo));
+        return ResponseEntity.status(201).body(grupoService.guardar(grupo));
     }
 
     @GetMapping("{id}")
@@ -32,18 +32,14 @@ public class GrupoController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Grupo> actualizar(@PathVariable Integer id, @RequestBody Grupo grupo) {
+    public ResponseEntity<Grupo> actualizar(
+            @PathVariable Integer id,
+            @RequestBody Grupo grupo){
 
-        Grupo grupoExistente = grupoService.obtenerPorId(id);
-
-        //Java evalúa lo de dentro del paréntesis antes de ejecutar el set.
-        grupoExistente.setNombre(grupo.getNombre());
-        grupoExistente.setDescripcion(grupo.getDescripcion());
-        grupoExistente.setFechaCreacion(grupo.getFechaCreacion());
-        grupoExistente.setNivelGrupo(grupo.getNivelGrupo());
-
-        return ResponseEntity.ok(grupoService.guardar(grupoExistente));
+        return ResponseEntity.ok(grupoService.actualizar(id, grupo));
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {

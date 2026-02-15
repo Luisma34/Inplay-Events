@@ -28,10 +28,29 @@ public class UsuarioService {
         return usuarioRepository.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
     }
 
-    public Usuario actualizar(Integer id, Usuario usuario) {
+    // Actualización segura:
+    // solo modificamos los campos enviados
+    // si vienen null, conservamos valores anteriores.
+    public Usuario actualizar(Integer id, Usuario nuevo) {
+
         Usuario existente = obtenerPorId(id);
-        usuario.setId(existente.getId());
-        return usuarioRepository.save(usuario);
+
+        if (nuevo.getPassword() != null)
+            existente.setPassword(nuevo.getPassword());
+
+        if (nuevo.getName() != null)
+            existente.setName(nuevo.getName());
+
+        if (nuevo.getEmail() != null)
+            existente.setEmail(nuevo.getEmail());
+
+        if (nuevo.getActive() != null)
+            existente.setActive(nuevo.getActive());
+
+        if (nuevo.getFechaAlta() != null)
+            existente.setFechaAlta(nuevo.getFechaAlta());
+
+        return usuarioRepository.save(existente);
     }
 
     public void eliminar(Integer id) {

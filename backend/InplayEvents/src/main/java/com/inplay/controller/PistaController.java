@@ -24,7 +24,15 @@ public class PistaController {
     @PostMapping
     public ResponseEntity<Pista> crear(@RequestBody Pista pista) {
         Pista creada = pistaService.guardar(pista);
-        return ResponseEntity.ok(creada);
+        return ResponseEntity.status(201).body(creada);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Pista> actualizar(
+            @PathVariable Integer id,
+            @RequestBody Pista pista){
+
+        return ResponseEntity.ok(pistaService.actualizar(id, pista));
     }
 
 

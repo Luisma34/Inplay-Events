@@ -18,7 +18,7 @@ public class NoticiaController {
 
 
     @PostMapping
-    public ResponseEntity <List<Noticia>> obtenerNoticias(){
+    public ResponseEntity<List<Noticia>> obtenerNoticias() {
         return ResponseEntity.ok(noticiaService.obtenerTodas());
     }
 
@@ -28,24 +28,19 @@ public class NoticiaController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Noticia> obtenerPorId(@PathVariable Integer id){
+    public ResponseEntity<Noticia> obtenerPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(noticiaService.obtenerPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Noticia> actualizar(@PathVariable Integer id,
-                                              @RequestBody Noticia noticia) {
+    public ResponseEntity<Noticia> actualizar(
+            @PathVariable Integer id,
+            @RequestBody Noticia noticia){
 
-        Noticia existente = noticiaService.obtenerPorId(id);
-
-        existente.setTitulo(noticia.getTitulo());
-        existente.setContenido(noticia.getContenido());
-        existente.setFechaPublicacion(noticia.getFechaPublicacion());
-        existente.setVisible(noticia.getVisible());
-        existente.setUsuario(noticia.getUsuario());
-
-        return ResponseEntity.ok(noticiaService.guardar(existente));
+        return ResponseEntity.ok(noticiaService.actualizar(id, noticia));
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {

@@ -27,16 +27,20 @@ public class ClasificacionController {
 
     @PostMapping
     public ResponseEntity<Clasificacion> crear(@RequestBody Clasificacion clasificacion) {
-        return ResponseEntity.ok(clasificacionService.guardar(clasificacion));
+        return ResponseEntity.status(201).body(clasificacionService.guardar(clasificacion));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Clasificacion> actualizar(
             @PathVariable Integer id,
-            @RequestBody Clasificacion clasificacion) {
+            @RequestBody Clasificacion clasificacion){
 
         return ResponseEntity.ok(clasificacionService.actualizar(id, clasificacion));
     }
+
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
