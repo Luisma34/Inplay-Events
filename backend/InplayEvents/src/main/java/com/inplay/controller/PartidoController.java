@@ -3,14 +3,13 @@ package com.inplay.controller;
 import com.inplay.entity.Partido;
 import com.inplay.service.PartidoService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/partidos")
+@RequestMapping("/api/partidos")
 @RequiredArgsConstructor
 public class PartidoController {
 

@@ -4,6 +4,7 @@ import com.inplay.entity.Grupo;
 import com.inplay.entity.Noticia;
 import com.inplay.service.NoticiaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +17,15 @@ public class NoticiaController {
 
     private final NoticiaService noticiaService;
 
-
-    @PostMapping
+    @GetMapping
     public ResponseEntity<List<Noticia>> obtenerNoticias() {
         return ResponseEntity.ok(noticiaService.obtenerTodas());
     }
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<Noticia> crear(@RequestBody Noticia noticia) {
-        return ResponseEntity.ok(noticiaService.guardar(noticia));
+        Noticia creada = noticiaService.guardar(noticia);
+        return ResponseEntity.status(201).body(creada);
     }
 
     @GetMapping("{id}")
@@ -32,7 +33,7 @@ public class NoticiaController {
         return ResponseEntity.ok(noticiaService.obtenerPorId(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<Noticia> actualizar(
             @PathVariable Integer id,
             @RequestBody Noticia noticia){
@@ -42,7 +43,7 @@ public class NoticiaController {
 
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         noticiaService.eliminar(id);
         return ResponseEntity.noContent().build();

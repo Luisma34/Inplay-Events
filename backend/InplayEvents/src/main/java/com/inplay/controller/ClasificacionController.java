@@ -16,7 +16,7 @@ public class ClasificacionController {
     private final ClasificacionService clasificacionService;
 
     @GetMapping
-    public ResponseEntity<List<Clasificacion>> getClasificacion(@RequestParam Integer id) {
+    public ResponseEntity<List<Clasificacion>> obtenerTodas() {
         return ResponseEntity.ok(clasificacionService.obtenerTodas());
     }
 

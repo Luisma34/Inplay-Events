@@ -7,8 +7,26 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    //Método privado que construye un objeto JSON de error estándar
+    private Map<String, Object> error(int status, String message) {
+        // Creamos un mapa que Spring convertirá automáticamente a JSON
+        Map<String, Object> body = new HashMap<>();
+        // Código HTTP del error (404, 400, 500...)
+        body.put("status", status);
+        // Mensaje legible para el cliente/front
+        body.put("message", message);
+        // Fecha y hora exacta del error (útil para logs y debugging)
+        body.put("timestamp", LocalDateTime.now());
+        // Devolvemos el mapa completo como respuesta
+        return body;
+    }
 
     // 404 - recurso no encontrado
     @ExceptionHandler(RecursoNoEncontradoException.class)

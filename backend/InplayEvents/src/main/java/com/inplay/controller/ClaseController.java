@@ -44,4 +44,5 @@ public class ClaseController {
         claseService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
 }
