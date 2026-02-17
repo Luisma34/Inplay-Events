@@ -41,8 +41,6 @@ public class NoticiaController {
         return ResponseEntity.ok(noticiaService.actualizar(id, noticia));
     }
 
-
-
     @DeleteMapping("{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         noticiaService.eliminar(id);

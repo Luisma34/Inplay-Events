@@ -4,6 +4,7 @@ import com.inplay.entity.Usuario;
 import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +13,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioService {
 
+    // Repositorio para acceder a la base de datos
     private final UsuarioRepository usuarioRepository;
 
+    // Encoder para encriptar contraseñas antes de guardarlas
+    private final PasswordEncoder passwordEncoder;
+
+    // Crear usuario.
     public Usuario guardar(Usuario usuario) {
+
+        // Encriptamos la contraseña antes de guardar
+        // Recordamos que primero se lee lo del paréntesis y luego lo de fuera.
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
         return usuarioRepository.save(usuario);
     }
 
+    //Obtener todos los usuarios.
     public List<Usuario> obtenerTodos() {
         return usuarioRepository.findAll();
     }
@@ -33,11 +45,15 @@ public class UsuarioService {
     // si vienen null, conservamos valores anteriores.
     public Usuario actualizar(Integer id, Usuario nuevo) {
 
+        // Primero buscamos el usuario existente
         Usuario existente = obtenerPorId(id);
 
+        // Si se envía nueva contraseña, la volvemos a encriptar
         if (nuevo.getPassword() != null)
-            existente.setPassword(nuevo.getPassword());
+            existente.setPassword(passwordEncoder.encode(nuevo.getPassword()));
 
+
+        // Solo actualizamos campos que no sean null
         if (nuevo.getName() != null)
             existente.setName(nuevo.getName());
 
@@ -53,8 +69,13 @@ public class UsuarioService {
         return usuarioRepository.save(existente);
     }
 
+    // Eliminar usuario.
     public void eliminar(Integer id) {
+
+        // Verificamos que exista antes de eliminar
         obtenerPorId(id);
+
+        //Eliminamos por ID
         usuarioRepository.deleteById(id);
     }
 
