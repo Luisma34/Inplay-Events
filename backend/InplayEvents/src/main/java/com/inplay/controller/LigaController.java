@@ -20,7 +20,7 @@ public class LigaController {
     // LigaService es una clase de servicio que contiene la lógica de negocio relacionada con las ligas.
     private final LigaService ligaService;
 
-    // El metodo getAllLigas() maneja las solicitudes GET a la ruta "/api/ligas".
+    // El metodo obtenerTodas() maneja las solicitudes GET a la ruta "/api/ligas".
     // Utiliza el servicio para obtener todas las ligas y devuelve una respuesta HTTP con la lista de ligas.
     @GetMapping
     public ResponseEntity<List<Liga>> obtenerTodas() {

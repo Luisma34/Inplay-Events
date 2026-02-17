@@ -16,7 +16,7 @@ public class PistaController {
     private final PistaService pistaService;
 
     @GetMapping
-    public ResponseEntity<List<Pista>> getAllPistas() {
+    public ResponseEntity<List<Pista>> obtenerTodas() {
         List<Pista> pistas = pistaService.obtenerTodas();
         return ResponseEntity.ok(pistas);
     }

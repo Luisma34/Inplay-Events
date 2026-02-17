@@ -29,7 +29,7 @@ public class Rol {
 
     //Tipos de rol en el grupo
     public enum RolUsuario {
-        ADMIN,MIEMBRO,INVITADO,PROFESOR
+        ADMIN, MIEMBRO, PROFESOR
     }
 
 }
