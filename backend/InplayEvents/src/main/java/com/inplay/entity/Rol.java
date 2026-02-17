@@ -20,16 +20,16 @@ public class Rol {
     @Id
     private Integer id;
 
-    @Column(nullable = false, unique = true)
-    private String nombre;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false)
     private RolUsuario rol;
 
     //Tipos de rol en el grupo
     public enum RolUsuario {
-        ADMIN, MIEMBRO, PROFESOR
+        ROLE_ADMIN,
+        ROLE_USUARIO,
+        ROLE_PROFESOR
     }
+
 
 }
