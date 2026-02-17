@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     //Metodo privado que construye un objeto JSON de error estándar
     private Map<String, Object> error(int status, String message) {
-        // Creamos un mapa que Spring convertirá automáticamente a JSON
+        // Creamos un mapa que Spring convertirá automáticamente a JSON. Clave → valor
         Map<String, Object> body = new HashMap<>();
         // Código HTTP del error (404, 400, 500...)
         body.put("status", status);

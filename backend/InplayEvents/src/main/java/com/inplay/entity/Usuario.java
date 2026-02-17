@@ -32,10 +32,10 @@ public class Usuario {
     @Column(nullable = false, name = "nombre")
     private String name;
 
-    //ID del rol (de momento se guarda como número simple)
-    // Luego lo convertiremos en relación @ManyToOne
-    @Column(name = "id_rol")
-    private int idRol;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_rol", nullable = false)
+    private Rol rol;
+
 
     //Email único
     @Column(nullable = false, unique = true)
