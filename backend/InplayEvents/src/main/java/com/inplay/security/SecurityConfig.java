@@ -3,7 +3,9 @@ package com.inplay.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,10 +37,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 // Autorización por rutas
-                .authorizeHttpRequests(auth-> auth
+                .authorizeHttpRequests(auth -> auth
 
                         // Login y registro públicos
-                        .requestMatchers(HttpMethod.POST,"/login","/registro").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login", "/registro").permitAll()
 
                         // Rutas admin protegidas
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -47,9 +49,18 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // Activamos autenticación básica por sesión
-                // NO usamos formLogin
-                .httpBasic(Customizer.withDefaults());
+                // Activamos login por sesión gestionado automáticamente por Spring
+                .formLogin(form -> form
+                        // Endpoint que Spring usará para procesar login
+                        .loginProcessingUrl("/login")
+                        .permitAll()
+                )
+                // Endpoint para cerrar sesió
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .permitAll()
+                );
+
 
         return http.build();
 
