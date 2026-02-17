@@ -3,7 +3,6 @@ package com.inplay.controller;
 import com.inplay.dto.LoginRequest;
 import com.inplay.dto.LoginResponse;
 import com.inplay.entity.Usuario;
-import com.inplay.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
