@@ -54,33 +54,43 @@ public class Usuario implements UserDetails {
     private LocalDateTime fechaAlta;
 
     // Metodos de Sring Security
+    // Devuelve los roles del usuario.
+    // Spring exige que empiecen por "ROLE_".
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(
-                new SimpleGrantedAuthority("ROLE_" + rol.getRol().name())
-        );
+        // El enum ya es ROLE_ADMIN, ROLE_USUARIO...
+        return List.of(new SimpleGrantedAuthority(rol.getRol().name()));
     }
 
+
+    //Devuelve el identificador del usuario.
+    // En este proyecto usamos el email como username.
     @Override
     public String getUsername() {
         return email; // Usamos el email como identificador de login
     }
 
+    //Indica si la cuenta ha expirado
+    // Aqui devolvemos true (no expira).
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Puedes añadir lógica real si lo necesitas
+        return true;
     }
 
+    // Indica si la cuenta está bloqueada
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    // Indica si la contraseña ha expirado
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    // Indica si el usuario está activo.
+    // Aqui si usamos el campo real de la DB.
     @Override
     public boolean isEnabled() {
         return active;
