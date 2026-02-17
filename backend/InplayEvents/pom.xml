@@ -15,7 +15,7 @@
     <groupId>com.inplay</groupId>
     <artifactId>InplayEvents</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>InplayEvents</name>
     <description>InplayEvents</description>
@@ -64,13 +64,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <!-- Tomcat (WAR) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Tests -->
