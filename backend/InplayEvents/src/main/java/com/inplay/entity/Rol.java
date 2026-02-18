@@ -26,6 +26,7 @@ public class Rol {
 
     //Tipos de rol en el grupo
     public enum RolUsuario {
+        ROLE_SUPERADMIN,
         ROLE_ADMIN,
         ROLE_USUARIO,
         ROLE_PROFESOR
