@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,8 @@ import java.util.List;
 // beans, seguridad, filtros, dependencias o comportamientos del sistema.
 // Spring la lee al arrancar y aplica automáticamente lo que se configure dentro.
 @Configuration
+// Activa @PreAuthorize en metodos
+@EnableMethodSecurity
 public class SecurityConfig {
 
     //Aqui definimos todas las reglas de seguridad
@@ -36,17 +39,11 @@ public class SecurityConfig {
                 // Activamos CORS (React corre en otro puerto)
                 .cors(Customizer.withDefaults())
 
-                // Autorización por rutas
+                // Aquí solo autenticación general, sin roles.
                 .authorizeHttpRequests(auth -> auth
-
-                        // Login y registro públicos
                         .requestMatchers(HttpMethod.POST, "/login", "/registro").permitAll()
-
-                        // Rutas admin protegidas
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // Lo demas requiere autenticación
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 // Activamos login por sesión gestionado automáticamente por Spring

@@ -5,6 +5,7 @@ import com.inplay.entity.Reserva;
 import com.inplay.service.ReservaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public class ReservaController {
     private final ReservaService reservaService;
 
     //ResponseEntity -> respuesta HTTP con código de estado y cuerpo.
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<Reserva>> getReservas() {
         List<Reserva> reservas = reservaService.obtenerReservas();
@@ -26,6 +28,7 @@ public class ReservaController {
 
     // @RequestBody -> convierte el JSON del cuerpo de la solicitud en un objeto Reserva.
     // @PostMapping -> maneja solicitudes POST para crear una nueva reserva.
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<Reserva> crear(@RequestBody Reserva reserva) {
         Reserva creada = reservaService.guardarReserva(reserva);
@@ -34,6 +37,7 @@ public class ReservaController {
 
     // @DeleteMapping -> maneja solicitudes DELETE para cancelar una reserva por su ID.
     // @PathVariable -> extrae el ID de la URL para identificar qué reserva cancelar.
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelar(@PathVariable Integer id) {
         reservaService.cancelarReserva(id);
@@ -42,6 +46,7 @@ public class ReservaController {
 
     // @GetMapping("/fecha/{fecha}") -> maneja solicitudes GET para obtener reservas por fecha.
     // @PathVariable LocalDate fecha -> extrae la fecha de la URL y la convierte en un objeto LocalDate.
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/fecha/{fecha}")
     public ResponseEntity<List<Reserva>> porFecha(@PathVariable LocalDate fecha) {
         List<Reserva> reservas = reservaService.reservasPorFecha(fecha);

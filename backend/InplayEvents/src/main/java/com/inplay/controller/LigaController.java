@@ -4,6 +4,7 @@ import com.inplay.entity.Liga;
 import com.inplay.service.LigaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,12 +23,14 @@ public class LigaController {
 
     // El metodo obtenerTodas() maneja las solicitudes GET a la ruta "/api/ligas".
     // Utiliza el servicio para obtener todas las ligas y devuelve una respuesta HTTP con la lista de ligas.
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<Liga>> obtenerTodas() {
         List<Liga> ligas = ligaService.obtenerTodas();
         return ResponseEntity.ok(ligas);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
     @PutMapping("{id}")
     public ResponseEntity<Liga> actualizar(@RequestBody Liga liga, @PathVariable Integer id){
 
@@ -52,6 +55,7 @@ public class LigaController {
     // Recibe un objeto Liga en el cuerpo de la solicitud, lo guarda utilizando el servicio
     // y devuelve una respuesta HTTP con la liga creada.
     // @RequestBody se utiliza para indicar que el objeto Liga debe ser deserializado a partir del cuerpo de la solicitud HTTP.
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
     @PostMapping
     public ResponseEntity<Liga> createLiga(@RequestBody Liga liga) {
         Liga createdLiga = ligaService.guardar(liga);
@@ -62,6 +66,7 @@ public class LigaController {
     // Recibe un ID de liga como parte de la URL, elimina la liga correspondiente utilizando el servicio
     // y devuelve una respuesta HTTP sin contenido.
     //@PathVariable se utiliza para indicar que el valor del ID debe ser extraído de la URL de la solicitud.
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         ligaService.eliminar(id);
