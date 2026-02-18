@@ -42,6 +42,7 @@ public class SecurityConfig {
                 // Aquí solo autenticación general, sin roles.
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/login", "/registro").permitAll()
+                        .requestMatchers("/api/auth/registro").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
