@@ -1,5 +1,6 @@
 package com.inplay.service;
 
+import com.inplay.dto.ChangePasswordRequest;
 import com.inplay.entity.Rol;
 import com.inplay.entity.Usuario;
 import com.inplay.exception.RecursoNoEncontradoException;
@@ -107,6 +108,30 @@ public class UsuarioService {
 
         return usuarioRepository.save(existente);
     }
+
+    // Metodo para cambiar contraseña del usuario autenticado
+    public void cambiarPassword(ChangePasswordRequest request) {
+
+        // Obtenemos el usuario autenticado actual
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName(); // getName() devuelve el username (email)
+
+        // Buscamos usuario en base de datos
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        // Validamos que la contraseña actual sea correcta
+        if (!passwordEncoder.matches(request.getPasswordActual(), usuario.getPassword())) {
+            throw new RuntimeException("La contraseña actual no es correcta.");
+        }
+
+        // Encriptamos la nueva contraseña
+        usuario.setPassword(passwordEncoder.encode(request.getNuevaPassword()));
+
+        // Guardamos cambios
+        usuarioRepository.save(usuario);
+    }
+
 
     // Eliminar usuario.
     public void eliminar(Integer id) {

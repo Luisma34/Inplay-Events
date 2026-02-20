@@ -1,5 +1,7 @@
 package com.inplay.controller;
 
+import com.inplay.dto.ChangePasswordRequest;
+import com.inplay.dto.ChangeRolRequest;
 import com.inplay.entity.Usuario;
 import com.inplay.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class UsuarioController {
         List<Usuario> usuarios = usuarioService.obtenerTodos();
         return ResponseEntity.ok(usuarios);
     }
+
     // GET /api/usuarios/{id} -> Obtener un usuario por ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
@@ -45,6 +48,26 @@ public class UsuarioController {
     public ResponseEntity<Usuario> actualizar(@PathVariable Integer id,
                                               @RequestBody Usuario usuario) {
         return ResponseEntity.ok(usuarioService.actualizar(id, usuario));
+    }
+
+    @PutMapping("/{id}/rol")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
+    public ResponseEntity<Usuario> cambiarRol(
+            @PathVariable Integer id,
+            @RequestBody ChangeRolRequest request) {
+
+        return ResponseEntity.ok(usuarioService.cambiarRol(id, request.getNuevoRol()));
+    }
+
+    // Cambiar contraseña del usuario autenticado
+    // Solo requiere estar autenticado
+    @PutMapping("/me/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> cambiarPassword(@RequestBody ChangePasswordRequest request) {
+
+        usuarioService.cambiarPassword(request);
+
+        return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
 
     // DELETE /api/usuarios/{id}
