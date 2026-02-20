@@ -1,9 +1,13 @@
 package com.inplay.service;
 
+import com.inplay.entity.Rol;
 import com.inplay.entity.Usuario;
 import com.inplay.exception.RecursoNoEncontradoException;
+import com.inplay.repository.RolRepository;
 import com.inplay.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    // Repositorio para acceder a la base de datos
+    // Repositorios para acceder a la base de datos
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
 
     // Encoder para encriptar contraseñas antes de guardarlas
     private final PasswordEncoder passwordEncoder;
@@ -65,6 +70,40 @@ public class UsuarioService {
 
         if (nuevo.getFechaAlta() != null)
             existente.setFechaAlta(nuevo.getFechaAlta());
+
+        return usuarioRepository.save(existente);
+    }
+
+    public Usuario cambiarRol(Integer id, Rol.RolUsuario nuevoRol) {
+
+        Usuario existente = obtenerPorId(id);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String rolActual = auth.getAuthorities().iterator().next().getAuthority();
+
+        // Si intenta asignar ADMIN o SUPERADMIN -> solo SUPERADMIN puede hacerlo
+        if (nuevoRol == Rol.RolUsuario.ROLE_ADMIN ||
+                nuevoRol == Rol.RolUsuario.ROLE_SUPERADMIN) {
+
+            if (!rolActual.equals("ROLE_SUPERADMIN")) {
+                throw new RuntimeException("Solo SUPERADMIN puede asignar rol");
+            }
+
+            // Si intenta asignar PROFESOR
+            else if (nuevoRol == Rol.RolUsuario.ROLE_PROFESOR) {
+
+                if (!(rolActual.equals("ROLE_ADMIN") ||
+                        rolActual.equals("ROLE_SUPERADMIN"))) {
+                    throw new RuntimeException("No tienes permisos para asignar este rol");
+                }
+            }
+
+
+        }
+        Rol rol = rolRepository.findByRol(nuevoRol)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
+
+        existente.setRol(rol);
 
         return usuarioRepository.save(existente);
     }

@@ -27,35 +27,47 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    //Aqui definimos todas las reglas de seguridad
+    // Bean principal donde se definen todas las reglas de seguridad HTTP.
     // Bean es simplemente un objeto que Spring crea, gestiona y controla por ti dentro de su contenedor.
     @Bean
     public SecurityFilterChain springSecurityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // Desactivamos CSRF porque trabajamos con React y JSON
+                // Desactiva CSRF porque usamos API REST con React (no formularios tradicionales).
                 .csrf(csrf -> csrf.disable())
 
-                // Activamos CORS (React corre en otro puerto)
+                // Activa CORS para permitir peticiones desde otro dominio/puerto (React).
                 .cors(Customizer.withDefaults())
 
-                // Aquí solo autenticación general, sin roles.
+                // Define las reglas de autorización por rutas.
                 .authorizeHttpRequests(auth -> auth
+                        // Permite acceso sin autenticación al login y registro.
                         .requestMatchers(HttpMethod.POST, "/login", "/registro").permitAll()
+
+                        // Permite registro desde endpoint específico.
                         .requestMatchers("/api/auth/registro").permitAll()
+
+                        // Cualquier ruta que empiece por /api/ requiere usuario autenticado.
                         .requestMatchers("/api/**").authenticated()
+
+                        // El resto de rutas son públicas.
                         .anyRequest().permitAll()
                 )
 
                 // Activamos login por sesión gestionado automáticamente por Spring
                 .formLogin(form -> form
-                        // Endpoint que Spring usará para procesar login
+
+                        // URL que Spring intercepta para procesar autenticación.
                         .loginProcessingUrl("/login")
+                        // Permite que cualquiera pueda acceder al login.
                         .permitAll()
                 )
-                // Endpoint para cerrar sesió
+
+                // Endpoint para cerrar sesión
                 .logout(logout -> logout
                         .logoutUrl("/logout")
+
+                        // Permite que cualquier usuario autenticado pueda cerrar sesión.
                         .permitAll()
                 );
 
@@ -64,24 +76,36 @@ public class SecurityConfig {
 
     }
 
-    // BCrypt para cifrar contraseñas
+    // Bean que define el algoritmo de cifrado de contraseñas.
+    // BCrypt es el estándar recomendado por Spring Security.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configuración CORS para permitir React (ej: localhost:3000)
+    // Configuración CORS personalizada.
+    // Permite que el frontend (React) pueda hacer peticiones al backend.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
+        // Dominios permitidos para hacer peticiones al backend.
         config.setAllowedOrigins(List.of("http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // importante para sesiones.
-        // Se sustituirá por el dominio de la aplicación. config.setAllowedOrigins(List.of("https://inplayevents.com"));
 
+        // Métodos HTTP permitidos.
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+
+        // Cabeceras permitidas en la petición.
+        config.setAllowedHeaders(List.of("*"));
+
+        // Permite enviar cookies/sesión en las peticiones (necesario si usas login por sesión).
+        config.setAllowCredentials(true); // importante para sesiones.
+
+        // Aquí deberás sustituir por el dominio real en producción.
+        // config.setAllowedOrigins(List.of("https://inplayevents.com"));
+
+        // Registra la configuración CORS para todas las rutas.
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
