@@ -1,4 +1,5 @@
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 export default function Admin() {
   return (
@@ -17,6 +18,7 @@ export default function Admin() {
           {
             title: "Noticias",
             text: "Crear y publicar novedades del club.",
+            to: "/admin/noticias",
           },
           {
             title: "Ligas",
@@ -36,9 +38,15 @@ export default function Admin() {
               <Card.Body className="d-flex flex-column">
                 <div className="fw-bold mb-2">{x.title}</div>
                 <div className="text-secondary mb-3">{x.text}</div>
-                <Button className="mt-auto" disabled>
-                  Gestionar (próximamente)
-                </Button>
+               {x.to ? (
+  <Button as={Link} to={x.to} className="mt-auto">
+    Gestionar
+  </Button>
+) : (
+  <Button className="mt-auto" disabled>
+    Gestionar (próximamente)
+  </Button>
+)}
               </Card.Body>
             </Card>
           </Col>
