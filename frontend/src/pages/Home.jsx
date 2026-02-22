@@ -109,7 +109,7 @@ export default function Home() {
         Donde llevamos el pádel a otro nivel
       </p>
 
-      <Button as={Link} to="/login" size="lg" className="btn-hero">
+      <Button as={Link} to="/acceso" size="lg" className="btn-hero">
         ÚNETE AL CLUB
       </Button>
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -132,7 +132,10 @@ export default function Login({ onLogin }) {
                 </Button>
 
                 <div className="text-center mt-3 text-secondary">
-                  ¿No tienes cuenta? <span className="text-muted">(Registro próximamente)</span>
+                ¿No tienes cuenta?{" "}
+                <Link to="/register" className="text-decoration-none">
+                 Crear cuenta
+                </Link>
                 </div>
               </Form>
             </Card.Body>

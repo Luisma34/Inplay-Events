@@ -10,6 +10,8 @@ import Reservas from "./pages/Reservas";
 import Ligas from "./pages/Ligas";
 import Clases from "./pages/Clases";
 import BuscarPartidos from "./pages/BuscarPartidos";
+import Register from "./pages/Register";
+import Acceso from "./pages/Accseso.jsx";
 
 import MiCuenta from "./pages/MiCuenta";
 import Admin from "./pages/Admin";
@@ -21,6 +23,8 @@ import PoliticaCookies from "./pages/PoliticaCookies";
 
 import RequireAuth from "./auth/RequireAuth";
 import { getUser, setUser, clearUser } from "./auth/auth";
+
+
 
 export default function App() {
   const [user, setUserState] = useState(null);
@@ -52,6 +56,8 @@ export default function App() {
         <Route path="/clases" element={<Clases />} />
         <Route path="/buscar-partidos" element={<BuscarPartidos />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/acceso" element={<Acceso user={user} />} />
 
         {/* Privadas */}
         <Route
