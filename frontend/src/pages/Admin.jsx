@@ -23,6 +23,7 @@ export default function Admin() {
           {
             title: "Ligas",
             text: "Crear ligas, categorías y temporadas.",
+            to: "/admin/ligas",
           },
           {
             title: "Reservas",

@@ -10,12 +10,16 @@ import Reservas from "./pages/Reservas";
 import Ligas from "./pages/Ligas";
 import Clases from "./pages/Clases";
 import BuscarPartidos from "./pages/BuscarPartidos";
+import Noticias from "./pages/Noticias";
 import Register from "./pages/Register";
 import Acceso from "./pages/Accseso.jsx";
+
 
 import MiCuenta from "./pages/MiCuenta";
 import Admin from "./pages/Admin";
 import Profesor from "./pages/Profesor";
+import AdminNoticias from "./pages/AdminNoticias";
+import AdminLigas from "./pages/AdminLigas";
 
 import AvisoLegal from "./pages/AvisoLegal";
 import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
@@ -54,6 +58,7 @@ export default function App() {
         <Route path="/reservas" element={<Reservas />} />
         <Route path="/ligas" element={<Ligas />} />
         <Route path="/clases" element={<Clases />} />
+        <Route path="/noticias" element={<Noticias />} />
         <Route path="/buscar-partidos" element={<BuscarPartidos />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
@@ -86,6 +91,24 @@ export default function App() {
             </RequireAuth>
           }
         />
+<Route
+  path="/admin/noticias"
+  element={
+    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+      <AdminNoticias />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/admin/ligas"
+  element={
+    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+      <AdminLigas />
+    </RequireAuth>
+  }
+/>
+
 
         {/* Legales */}
         <Route path="/aviso-legal" element={<AvisoLegal />} />

@@ -1,47 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Container, Row, Col, Card, Badge, Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
-
-// Datos demo (luego vendrán del backend)
-const ligasDemo = [
-  {
-    id: 1,
-    name: "Liga InPlay - Iniciación",
-    level: "Iniciación",
-    status: "Abierta",
-    teams: 12,
-    startDate: "2026-03-01",
-    description: "Ideal si estás empezando. Partidos guiados y buen ambiente.",
-  },
-  {
-    id: 2,
-    name: "Liga InPlay - Intermedio",
-    level: "Intermedio",
-    status: "Activa",
-    teams: 16,
-    startDate: "2026-02-01",
-    description: "Competición equilibrada con jugadores de nivel medio.",
-  },
-  {
-    id: 3,
-    name: "Liga InPlay - Avanzado",
-    level: "Avanzado",
-    status: "Próximamente",
-    teams: 10,
-    startDate: "2026-04-10",
-    description: "Para jugadores exigentes. Ritmo alto y partidos intensos.",
-  },
-  {
-    id: 4,
-    name: "Liga Mixta - Intermedio",
-    level: "Intermedio",
-    status: "Abierta",
-    teams: 14,
-    startDate: "2026-03-15",
-    description: "Formato mixto. Compite y conoce gente del club.",
-  },
-];
+import { leagueService } from "../services/leagueService";
 
 function statusBadgeVariant(status) {
   if (status === "Abierta") return "success";
@@ -53,16 +14,21 @@ function statusBadgeVariant(status) {
 export default function Ligas() {
   const user = getUser(); // null si no está logueado
 
+  const [ligas, setLigas] = useState([]);
   const [level, setLevel] = useState("Todos");
   const [status, setStatus] = useState("Todos");
 
+  useEffect(() => {
+    setLigas(leagueService.getAll()); // SOLO publicadas
+  }, []);
+
   const filtered = useMemo(() => {
-    return ligasDemo.filter((l) => {
+    return ligas.filter((l) => {
       const okLevel = level === "Todos" || l.level === level;
-      const okStatus = status === "Todos" || l.status === status;
+      const okStatus = status === "Todos" || (l.status || "Próximamente") === status;
       return okLevel && okStatus;
     });
-  }, [level, status]);
+  }, [ligas, level, status]);
 
   return (
     <Container className="py-5">
@@ -87,6 +53,8 @@ export default function Ligas() {
                     <option>Iniciación</option>
                     <option>Intermedio</option>
                     <option>Avanzado</option>
+                    <option>General</option>
+                    <option>Competición</option>
                   </Form.Select>
                 </Col>
 
@@ -127,29 +95,33 @@ export default function Ligas() {
                         Nivel: <span className="fw-semibold">{l.level}</span>
                       </div>
                     </div>
-                    <Badge bg={statusBadgeVariant(l.status)}>{l.status}</Badge>
+
+                    <Badge bg={statusBadgeVariant(l.status || "Próximamente")}>
+                      {l.status || "Próximamente"}
+                    </Badge>
                   </div>
 
                   <p className="text-secondary mt-3 mb-3">{l.description}</p>
 
                   <div className="d-flex flex-wrap gap-2 mt-auto">
                     <Badge bg="light" text="dark">
-                      Equipos: {l.teams}
+                      Equipos: {l.teams ?? 0}
                     </Badge>
                     <Badge bg="light" text="dark">
-                      Inicio: {l.startDate}
+                      Inicio: {l.startDate ? l.startDate : "Por confirmar"}
                     </Badge>
                   </div>
 
                   <div className="mt-3 d-grid gap-2">
-                    {/* CTA según login */}
                     {!user ? (
                       <Button as={Link} to="/login" variant="primary">
                         Inicia sesión para apuntarte
                       </Button>
                     ) : (
-                      <Button variant="primary" disabled={l.status !== "Abierta"}>
-                        {l.status === "Abierta" ? "Apuntarme (próximamente)" : "No disponible"}
+                      <Button variant="primary" disabled={(l.status || "Próximamente") !== "Abierta"}>
+                        {(l.status || "Próximamente") === "Abierta"
+                          ? "Apuntarme (próximamente)"
+                          : "No disponible"}
                       </Button>
                     )}
 
