@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Container, Row, Col, Card, Button, Form, Badge, Alert } from "react-bootstrap";
 import { getUser } from "../auth/auth";
-
-const STORAGE_KEY = "inplay_reservas_v1";
+import { reservasService } from "../services/reservasService";
 
 // Horas disponibles (ejemplo)
 const HOURS = [
@@ -12,7 +11,10 @@ const HOURS = [
   "20:00", "21:00", "22:00",
 ];
 
-const COURTS = ["Pista 1", "Pista 2", "Pista 3", "Pista 4", "Pista 5", "Pista 6", "Pista 7", "Pista 8"];
+const COURTS = [
+  "Pista 1", "Pista 2", "Pista 3", "Pista 4",
+  "Pista 5", "Pista 6", "Pista 7", "Pista 8",
+];
 
 function todayISO() {
   const d = new Date();
@@ -22,64 +24,39 @@ function todayISO() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function loadReservas() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function saveReservas(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  window.dispatchEvent(new Event("inplay:reservas-updated"));
-}
-
-function isTaken(reservas, date, hour, court) {
-  return reservas.some(
-    (r) =>
-      r.date === date &&
-      r.time === hour &&
-      r.court === court &&
-      r.status !== "Cancelada"
-  );
-}
-
 export default function Reservas() {
-  const user = getUser(); // puede ser null si no está logueado (la ruta ahora es pública, pero puedes luego protegerla)
+  const user = getUser();
 
-  const [reservas, setReservas] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0); // solo para recalcular useMemo
   const [date, setDate] = useState(todayISO());
   const [court, setCourt] = useState(COURTS[0]);
   const [selectedHour, setSelectedHour] = useState("");
   const [msg, setMsg] = useState("");
 
+  // 🔄 refresco cuando hay cambios (admin bloquea/cancela o usuario reserva)
   useEffect(() => {
-    const load = () => setReservas(loadReservas());
-    load();
+    const refresh = () => setRefreshKey((k) => k + 1);
 
-    const onStorage = (e) => {
-      if (e.key === STORAGE_KEY) load();
-    };
-    const onInternal = () => load();
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("inplay:reservas-updated", onInternal);
+    refresh();
+    window.addEventListener("inplay:reservas-updated", refresh);
+    window.addEventListener("storage", refresh);
 
     return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("inplay:reservas-updated", onInternal);
+      window.removeEventListener("inplay:reservas-updated", refresh);
+      window.removeEventListener("storage", refresh);
     };
   }, []);
 
+  // 🟢 Estado de cada hora (NO distinguimos bloqueada/reservada para el usuario)
   const hoursStatus = useMemo(() => {
-    return HOURS.map((h) => ({
-      hour: h,
-      taken: isTaken(reservas, date, h, court),
-    }));
-  }, [reservas, date, court]);
+    return HOURS.map((h) => {
+      const reserved = reservasService.isReserved({ date, time: h, court });
+      const blocked = reservasService.isBlocked({ date, time: h, court });
+      const notAvailable = reserved || blocked;
+
+      return { hour: h, notAvailable };
+    });
+  }, [date, court, refreshKey]);
 
   const handleConfirm = () => {
     setMsg("");
@@ -92,25 +69,32 @@ export default function Reservas() {
       setMsg("Selecciona una hora.");
       return;
     }
-    if (isTaken(reservas, date, selectedHour, court)) {
-      setMsg("Esa hora ya está ocupada en esa pista.");
+
+    // creamos la reserva usando el service (tu reservasService puede llamarse createBooking o create)
+    // ✅ intentamos primero createBooking (lo normal)
+    let res;
+
+    if (typeof reservasService.createBooking === "function") {
+      res = reservasService.createBooking({ user, date, time: selectedHour, court });
+    } else if (typeof reservasService.create === "function") {
+      // fallback por si tu service se llama create
+      res = reservasService.create({ user, date, time: selectedHour, court });
+    } else {
+      setMsg("Error interno: falta createBooking/create en reservasService.");
       return;
     }
 
-    const newReserva = {
-      id: crypto?.randomUUID?.() ?? String(Date.now()),
-      userEmail: user.email,
-      userName: user.name,
-      date,
-      time: selectedHour,
-      court,
-      status: "Confirmada",
-      createdAt: new Date().toISOString(),
-    };
+    // si tu service devuelve {ok, error}:
+    if (res && res.ok === false) {
+      setMsg("Esa hora no está disponible.");
+      return;
+    }
 
-    const updated = [newReserva, ...reservas];
-    setReservas(updated);
-    saveReservas(updated);
+    // si tu service devuelve booleano:
+    if (res === false) {
+      setMsg("Esa hora no está disponible.");
+      return;
+    }
 
     setSelectedHour("");
     setMsg("✅ Reserva confirmada.");
@@ -122,7 +106,9 @@ export default function Reservas() {
         <Col md={7}>
           <h1 className="fw-bold mb-1">Reservar pista</h1>
           <p className="text-secondary mb-0">
-            Selecciona fecha, pista y hora. Verde = libre, Gris = ocupada.
+            Selecciona fecha, pista y hora.
+            <br />
+            🟢 Verde = libre · ⚪ Gris = no disponible
           </p>
         </Col>
 
@@ -132,12 +118,25 @@ export default function Reservas() {
               <Row className="g-2">
                 <Col sm={6}>
                   <Form.Label className="mb-1">Fecha</Form.Label>
-                  <Form.Control type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                  <Form.Control
+                    type="date"
+                    value={date}
+                    onChange={(e) => {
+                      setDate(e.target.value);
+                      setSelectedHour("");
+                    }}
+                  />
                 </Col>
 
                 <Col sm={6}>
                   <Form.Label className="mb-1">Pista</Form.Label>
-                  <Form.Select value={court} onChange={(e) => setCourt(e.target.value)}>
+                  <Form.Select
+                    value={court}
+                    onChange={(e) => {
+                      setCourt(e.target.value);
+                      setSelectedHour("");
+                    }}
+                  >
                     {COURTS.map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -184,8 +183,14 @@ export default function Reservas() {
           <Col key={h.hour} xs={6} sm={4} md={3} lg={2}>
             <Button
               className="w-100"
-              variant={h.taken ? "secondary" : selectedHour === h.hour ? "primary" : "success"}
-              disabled={h.taken}
+              variant={
+                h.notAvailable
+                  ? "secondary" // 👈 bloqueada o reservada: igual
+                  : selectedHour === h.hour
+                  ? "primary"
+                  : "success"
+              }
+              disabled={h.notAvailable}
               onClick={() => setSelectedHour(h.hour)}
               style={{ fontWeight: 700 }}
             >
@@ -203,7 +208,7 @@ export default function Reservas() {
 
       <Card className="shadow-sm border-0 mt-4">
         <Card.Body className="text-secondary" style={{ fontSize: ".92rem" }}>
-         
+          Puedes gestionar tus reservas desde <b>Mi cuenta</b>.
         </Card.Body>
       </Card>
     </Container>

@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import Profesor from "./pages/Profesor";
 import AdminNoticias from "./pages/AdminNoticias";
 import AdminLigas from "./pages/AdminLigas";
+import AdminReservas from "./pages/AdminReservas";
 
 import AvisoLegal from "./pages/AvisoLegal";
 import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
@@ -108,6 +109,15 @@ export default function App() {
     </RequireAuth>
   }
 />
+<Route
+  path="/admin/reservas"
+  element={
+    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+      <AdminReservas />
+    </RequireAuth>
+  }
+/>
+
 
 
         {/* Legales */}

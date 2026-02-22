@@ -28,6 +28,7 @@ export default function Admin() {
           {
             title: "Reservas",
             text: "Ver/cancelar reservas y bloquear pistas.",
+            to: "/admin/reservas",
           },
           {
             title: "Usuarios",
