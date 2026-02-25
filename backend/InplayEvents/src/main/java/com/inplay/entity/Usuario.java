@@ -36,7 +36,7 @@ public class Usuario implements UserDetails {
 
     //Nombre obligatorio
     @Column(nullable = false, name = "nombre")
-    private String name;
+    private String nombre;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)

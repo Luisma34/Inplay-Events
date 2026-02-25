@@ -31,6 +31,18 @@ public class UsuarioService {
         // Encriptamos la contraseña antes de guardar
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
+
+        // Seteamos valores obligatorios
+        usuario.setFechaAlta(java.time.LocalDateTime.now());
+        usuario.setActive(true);
+
+        // Si no viene rol, asignamos ROLE_USUARIO por defecto
+        if (usuario.getRol() == null) {
+            Rol rolUsuario = rolRepository.findByRol(Rol.RolUsuario.ROLE_USUARIO)
+                    .orElseThrow(() -> new RuntimeException("Rol ROLE_USUARIO no encontrado"));
+            usuario.setRol(rolUsuario);
+        }
+
         return usuarioRepository.save(usuario);
     }
 
@@ -59,8 +71,8 @@ public class UsuarioService {
 
 
         // Solo actualizamos campos que no sean null
-        if (nuevo.getName() != null)
-            existente.setName(nuevo.getName());
+        if (nuevo.getNombre() != null)
+            existente.setNombre(nuevo.getNombre());
 
         if (nuevo.getEmail() != null)
             existente.setEmail(nuevo.getEmail());

@@ -28,7 +28,7 @@ public class AuthController {
                 .orElseThrow(()->new RuntimeException("Rol no encontrado"));
 
         Usuario usuario = new Usuario();
-        usuario.setName(request.getNombre());
+        usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
         usuario.setPassword(request.getPassword());
         usuario.setRol(rolUsuario);
