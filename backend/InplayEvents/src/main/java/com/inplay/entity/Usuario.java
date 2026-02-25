@@ -1,5 +1,6 @@
 package com.inplay.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,10 +27,11 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     @Column(name = "id_usuario")
-    private int id;
+    private Integer id;
 
     //Columna pasword
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     //Nombre obligatorio
@@ -63,7 +65,7 @@ public class Usuario implements UserDetails {
     }
 
 
-    //Devuelve el identificador del usuario.
+    // Devuelve el identificador del usuario.
     // En este proyecto usamos el email como username.
     @Override
     public String getUsername() {

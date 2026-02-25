@@ -4,13 +4,12 @@ import com.inplay.dto.RegisterRequest;
 import com.inplay.entity.Rol;
 import com.inplay.entity.Usuario;
 import com.inplay.repository.RolRepository;
+import com.inplay.repository.UsuarioRepository;
 import com.inplay.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,6 +18,7 @@ public class AuthController {
 
     private final UsuarioService usuarioService;
     private final RolRepository rolRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @PostMapping("/registro")
     public ResponseEntity<?> registro(@RequestBody RegisterRequest request){
@@ -36,4 +36,16 @@ public class AuthController {
 
         return ResponseEntity.status(201).body(usuarioService.guardar(usuario));
     }
+
+    @GetMapping("/me")
+    public Usuario usuarioActual(Authentication authentication) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No autenticado");
+        }
+
+        return usuarioRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
 }

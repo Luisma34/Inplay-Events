@@ -1,5 +1,6 @@
 package com.inplay.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +9,10 @@ import lombok.Setter;
 public class ChangePasswordRequest {
 
     // Contraseña actual (para validación)
+    @NotBlank
     private String passwordActual;
 
     // Nueva contraseña
+    @NotBlank
     private String nuevaPassword;
 }

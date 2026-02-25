@@ -29,7 +29,6 @@ public class UsuarioService {
     public Usuario guardar(Usuario usuario) {
 
         // Encriptamos la contraseña antes de guardar
-        // Recordamos que primero se lee lo del paréntesis y luego lo de fuera.
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
         return usuarioRepository.save(usuario);
@@ -82,25 +81,20 @@ public class UsuarioService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String rolActual = auth.getAuthorities().iterator().next().getAuthority();
 
-        // Si intenta asignar ADMIN o SUPERADMIN -> solo SUPERADMIN puede hacerlo
-        if (nuevoRol == Rol.RolUsuario.ROLE_ADMIN ||
-                nuevoRol == Rol.RolUsuario.ROLE_SUPERADMIN) {
-
+        // Asignar ADMIN o SUPERADMIN -> solo SUPERADMIN puede hacerlo
+        if (nuevoRol == Rol.RolUsuario.ROLE_ADMIN || nuevoRol == Rol.RolUsuario.ROLE_SUPERADMIN) {
             if (!rolActual.equals("ROLE_SUPERADMIN")) {
                 throw new RuntimeException("Solo SUPERADMIN puede asignar rol");
             }
-
-            // Si intenta asignar PROFESOR
-            else if (nuevoRol == Rol.RolUsuario.ROLE_PROFESOR) {
-
-                if (!(rolActual.equals("ROLE_ADMIN") ||
-                        rolActual.equals("ROLE_SUPERADMIN"))) {
-                    throw new RuntimeException("No tienes permisos para asignar este rol");
-                }
-            }
-
-
         }
+
+        // Asignar PROFESOR -> ADMIN o SUPERADMIN
+        if (nuevoRol == Rol.RolUsuario.ROLE_PROFESOR) {
+            if (!(rolActual.equals("ROLE_ADMIN") || rolActual.equals("ROLE_SUPERADMIN"))) {
+                throw new RuntimeException("No tienes permisos para asignar este rol");
+            }
+        }
+
         Rol rol = rolRepository.findByRol(nuevoRol)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
 
