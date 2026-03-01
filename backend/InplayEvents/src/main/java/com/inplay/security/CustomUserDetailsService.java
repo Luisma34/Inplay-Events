@@ -7,8 +7,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-// Marca esta clase como componente de Spring (se inyecta automáticamente).
+
 @RequiredArgsConstructor
+// Marca esta clase como componente de Spring (se inyecta automáticamente).
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
