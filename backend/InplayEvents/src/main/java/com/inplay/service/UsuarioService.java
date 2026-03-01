@@ -48,7 +48,7 @@ public class UsuarioService {
 
     //Obtener todos los usuarios.
     public List<Usuario> obtenerTodos() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findByActiveTrue();
     }
 
     // Metodo para obtener un usuario por su ID
@@ -142,11 +142,22 @@ public class UsuarioService {
     // Eliminar usuario.
     public void eliminar(Integer id) {
 
-        // Verificamos que exista antes de eliminar
-        obtenerPorId(id);
+        Usuario usuario = obtenerPorId(id);
 
-        //Eliminamos por ID
-        usuarioRepository.deleteById(id);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String rolActual = auth.getAuthorities().iterator().next().getAuthority();
+
+        // Si se intenta eliminar un SuperAdmin y no es SuperAdmin
+        // Primer get rol obtenemos el objeto Rol de la clase Usuario y con el segundo el enum de RolUsuario(clase Rol)
+        if (usuario.getRol().getRol() == Rol.RolUsuario.ROLE_SUPERADMIN
+                && !rolActual.equals("ROLE_SUPERADMIN")) {
+            throw new RuntimeException("No tienes permisos para eliminar este rol");
+        }
+
+        // Soft delete
+        usuario.setActive(false);
+        usuarioRepository.save(usuario);
+
     }
 
 }

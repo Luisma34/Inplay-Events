@@ -3,8 +3,10 @@ package com.inplay.controller;
 import com.inplay.dto.ChangePasswordRequest;
 import com.inplay.dto.ChangeRolRequest;
 import com.inplay.entity.Usuario;
+import com.inplay.repository.UsuarioRepository;
 import com.inplay.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +20,11 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    // GET /api/usuarios -> Listar todos los usuarios
+    // GET /api/usuarios -> Listar todos los usuarios activos
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
     @GetMapping
-    public ResponseEntity<List<Usuario>> obtenerTodos() {
-        List<Usuario> usuarios = usuarioService.obtenerTodos();
-        return ResponseEntity.ok(usuarios);
+    public ResponseEntity <List<Usuario>> obtenerTodos() {
+        return ResponseEntity.ok(usuarioService.obtenerTodos());
     }
 
     // GET /api/usuarios/{id} -> Obtener un usuario por ID

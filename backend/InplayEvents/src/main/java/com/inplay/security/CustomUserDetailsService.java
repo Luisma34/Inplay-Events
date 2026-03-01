@@ -1,5 +1,6 @@
 package com.inplay.security;
 
+import com.inplay.entity.Usuario;
 import com.inplay.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,15 +19,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // Metodo que Spring Security ejecuta automáticamente al hacer login
     @Override
-    public UserDetails loadUserByUsername (String email) throws UsernameNotFoundException{
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         // Busca el usuario por email en la base de datos
         return usuarioRepository.findByEmail(email)
                 // Si no existe, lanza excepción y el login falla
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado."));
     }
-
-
-
-
 }
+
