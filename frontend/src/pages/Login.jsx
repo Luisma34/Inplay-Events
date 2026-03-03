@@ -12,8 +12,6 @@ export default function Login({ onLogin }) {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
 
-  // Simulación roles (solo DEV). Luego esto desaparece y viene del backend.
-  const [role, setRole] = useState("USER"); // USER | PROFESOR | ADMIN
 
   const isValidEmail = useMemo(() => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -67,7 +65,7 @@ export default function Login({ onLogin }) {
       onLogin?.({
         name: userData.nombre,
         email: userData.email,
-        role: userData.rol?.rol, // viene como ROLE_ADMIN, ROLE_USUARIO...
+        role: userData.rol?.rol?.replace("ROLE_", ""), // viene como ROLE_ADMIN, ROLE_USUARIO...
       });
 
       navigate("/");
