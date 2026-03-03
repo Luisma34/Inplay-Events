@@ -21,7 +21,7 @@ export default function Login({ onLogin }) {
 
   const canSubmit = email.trim().length > 0 && password.length >= 6 && isValidEmail;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -34,18 +34,46 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    // ✅ LOGIN SIMULADO (luego aquí irá el fetch al backend)
-    const fakeUser = {
-      name: email.split("@")[0],
-      email,
-      role, // USER | PROFESOR | ADMIN
-    };
+    try {
+      // Login (form-urlencoded porque usamos formLogin en Spring)
+      const loginRes = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        credentials: "include",
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
+      });
 
-    // Si remember está false, igualmente lo guardamos porque tu App usa localStorage.
-    // Más adelante puedes separar sessionStorage/localStorage.
-    onLogin?.(fakeUser);
+      if (!loginRes.ok) {
+        throw new Error("Credenciales incorrectas");
+      }
 
-    navigate("/"); // o a /dashboard cuando lo tengamos
+      //  Obtener usuario real desde backend
+      const meRes = await fetch("http://localhost:8080/api/auth/me", {
+        credentials: "include",
+      });
+
+      if (!meRes.ok) {
+        throw new Error("No se pudo obtener el usuario");
+      }
+
+      const userData = await meRes.json();
+
+      //  Guardar usuario real
+      onLogin?.({
+        name: userData.nombre,
+        email: userData.email,
+        role: userData.rol?.rol, // viene como ROLE_ADMIN, ROLE_USUARIO...
+      });
+
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
