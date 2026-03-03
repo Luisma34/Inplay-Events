@@ -11,10 +11,7 @@ const HOURS = [
   "20:00", "21:00", "22:00",
 ];
 
-const COURTS = [
-  "Pista 1", "Pista 2", "Pista 3", "Pista 4",
-  "Pista 5", "Pista 6", "Pista 7", "Pista 8",
-];
+
 
 function todayISO() {
   const d = new Date();
@@ -29,9 +26,41 @@ export default function Reservas() {
 
   const [refreshKey, setRefreshKey] = useState(0); // solo para recalcular useMemo
   const [date, setDate] = useState(todayISO());
-  const [court, setCourt] = useState(COURTS[0]);
+  const [court, setCourt] = useState("");
+   const [courts, setCourts] = useState([]); // Estado real de pistas obtenidas desde backend
   const [selectedHour, setSelectedHour] = useState("");
   const [msg, setMsg] = useState("");
+
+
+  //Cargar pistas reales desde la DB.
+  //Se ejecuta al montar el componente.
+  useEffect(() => {
+    const fetchPistas = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/pistas", {
+          credentials: "include", // Enviamos cookie de sesión
+        });
+
+        if (!response.ok) {
+          throw new Error("Error al cargar pistas");
+        }
+
+        const data = await response.json();
+
+        // Guardamos nombre e id (importante para luego usar id real)
+        setCourts(data);
+
+        // Si no hay pista seleccionada aún, seleccionamos la primera
+        if (data.length > 0 && !court) {
+          setCourt(data[0].id_pista);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchPistas();
+  }, []);
 
   // 🔄 refresco cuando hay cambios (admin bloquea/cancela o usuario reserva)
   useEffect(() => {
@@ -75,7 +104,12 @@ export default function Reservas() {
     let res;
 
     if (typeof reservasService.createBooking === "function") {
-      res = reservasService.createBooking({ user, date, time: selectedHour, court });
+      res = reservasService.createBooking({
+        user,
+        date,
+        time: selectedHour,
+        court,
+      });
     } else if (typeof reservasService.create === "function") {
       // fallback por si tu service se llama create
       res = reservasService.create({ user, date, time: selectedHour, court });
@@ -137,9 +171,9 @@ export default function Reservas() {
                       setSelectedHour("");
                     }}
                   >
-                    {COURTS.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                    {courts.map((c) => (
+                      <option key={c.id_pista} value={c.id_pista}>
+                        {c.nombre}
                       </option>
                     ))}
                   </Form.Select>
@@ -187,8 +221,8 @@ export default function Reservas() {
                 h.notAvailable
                   ? "secondary" // 👈 bloqueada o reservada: igual
                   : selectedHour === h.hour
-                  ? "primary"
-                  : "success"
+                    ? "primary"
+                    : "success"
               }
               disabled={h.notAvailable}
               onClick={() => setSelectedHour(h.hour)}

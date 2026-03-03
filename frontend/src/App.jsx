@@ -56,7 +56,14 @@ export default function App() {
       <Routes>
         {/* Públicas */}
         <Route path="/" element={<Home />} />
-        <Route path="/reservas" element={<Reservas />} />
+        <Route
+          path="/reservas"
+          element={
+            <RequireAuth user={user}>
+              <Reservas />
+            </RequireAuth>
+          }
+        />
         <Route path="/ligas" element={<Ligas />} />
         <Route path="/clases" element={<Clases />} />
         <Route path="/noticias" element={<Noticias />} />
@@ -92,33 +99,31 @@ export default function App() {
             </RequireAuth>
           }
         />
-<Route
-  path="/admin/noticias"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminNoticias />
-    </RequireAuth>
-  }
-/>
+        <Route
+          path="/admin/noticias"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminNoticias />
+            </RequireAuth>
+          }
+        />
 
-<Route
-  path="/admin/ligas"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminLigas />
-    </RequireAuth>
-  }
-/>
-<Route
-  path="/admin/reservas"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminReservas />
-    </RequireAuth>
-  }
-/>
-
-
+        <Route
+          path="/admin/ligas"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminLigas />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin/reservas"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminReservas />
+            </RequireAuth>
+          }
+        />
 
         {/* Legales */}
         <Route path="/aviso-legal" element={<AvisoLegal />} />
