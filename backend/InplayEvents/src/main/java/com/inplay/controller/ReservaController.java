@@ -4,11 +4,13 @@ package com.inplay.controller;
 import com.inplay.entity.Reserva;
 import com.inplay.service.ReservaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -24,6 +26,14 @@ public class ReservaController {
     public ResponseEntity<List<Reserva>> getReservas() {
         List<Reserva> reservas = reservaService.obtenerReservas();
         return ResponseEntity.ok(reservas);
+    }
+
+    @GetMapping("/disponibilidad")
+    public List<LocalTime> disponibilidad(
+            @RequestParam Integer pistaId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+
+        return reservaService.obtenerSlotsDisponibles(pistaId, fecha);
     }
 
     // @RequestBody -> convierte el JSON del cuerpo de la solicitud en un objeto Reserva.

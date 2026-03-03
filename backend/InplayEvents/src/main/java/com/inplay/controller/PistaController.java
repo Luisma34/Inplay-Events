@@ -24,7 +24,6 @@ public class PistaController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_SUPERADMIN')")
-
     @PostMapping
     public ResponseEntity<Pista> crear(@RequestBody Pista pista) {
         Pista creada = pistaService.guardar(pista);
