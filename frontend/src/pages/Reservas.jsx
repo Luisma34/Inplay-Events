@@ -1,17 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Card, Button, Form, Badge, Alert } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  Badge,
+  Alert,
+} from "react-bootstrap";
 import { getUser } from "../auth/auth";
-import { reservasService } from "../services/reservasService";
 
-// Horas disponibles (ejemplo)
+// Horas fijas del club (MVP)
 const HOURS = [
-  "08:00", "09:00", "10:00", "11:00",
-  "12:00", "13:00", "14:00", "15:00",
-  "16:00", "17:00", "18:00", "19:00",
-  "20:00", "21:00", "22:00",
+  "08:00",
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+  "22:00",
 ];
-
-
 
 function todayISO() {
   const d = new Date();
@@ -24,114 +41,105 @@ function todayISO() {
 export default function Reservas() {
   const user = getUser();
 
-  const [refreshKey, setRefreshKey] = useState(0); // solo para recalcular useMemo
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [date, setDate] = useState(todayISO());
   const [court, setCourt] = useState("");
-   const [courts, setCourts] = useState([]); // Estado real de pistas obtenidas desde backend
+  const [courts, setCourts] = useState([]);
   const [selectedHour, setSelectedHour] = useState("");
   const [msg, setMsg] = useState("");
 
-
-  //Cargar pistas reales desde la DB.
-  //Se ejecuta al montar el componente.
+  // 🔹 Cargar pistas desde backend
   useEffect(() => {
-    const fetchPistas = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/pistas", {
-          credentials: "include", // Enviamos cookie de sesión
-        });
-
-        if (!response.ok) {
-          throw new Error("Error al cargar pistas");
-        }
-
-        const data = await response.json();
-
-        // Guardamos nombre e id (importante para luego usar id real)
+    fetch("http://localhost:8080/api/pistas", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error al cargar pistas");
+        return res.json();
+      })
+      .then((data) => {
         setCourts(data);
-
-        // Si no hay pista seleccionada aún, seleccionamos la primera
-        if (data.length > 0 && !court) {
-          setCourt(data[0].id_pista);
+        if (data.length > 0) {
+          setCourt(data[0].id);
         }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchPistas();
+      })
+      .catch((err) => console.error(err));
   }, []);
 
-  // 🔄 refresco cuando hay cambios (admin bloquea/cancela o usuario reserva)
+  // 🔹 Cargar disponibilidad real desde backend
   useEffect(() => {
-    const refresh = () => setRefreshKey((k) => k + 1);
+    if (!court || !date) return;
 
-    refresh();
-    window.addEventListener("inplay:reservas-updated", refresh);
-    window.addEventListener("storage", refresh);
+    fetch(
+      `http://localhost:8080/api/reservas/disponibilidad?pistaId=${court}&fecha=${date}`,
+      { credentials: "include" },
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error("Error cargando disponibilidad");
+        return res.json();
+      })
+      .then((data) => {
+        const limpio = data.map((h) =>
+          typeof h === "string" ? h.slice(0, 5) : h,
+        );
 
-    return () => {
-      window.removeEventListener("inplay:reservas-updated", refresh);
-      window.removeEventListener("storage", refresh);
-    };
-  }, []);
+        console.log("Slots disponibles:", limpio);
 
-  // 🟢 Estado de cada hora (NO distinguimos bloqueada/reservada para el usuario)
-  const hoursStatus = useMemo(() => {
-    return HOURS.map((h) => {
-      const reserved = reservasService.isReserved({ date, time: h, court });
-      const blocked = reservasService.isBlocked({ date, time: h, court });
-      const notAvailable = reserved || blocked;
+        setAvailableSlots(limpio);
+      })
+      .catch(() => setAvailableSlots([]));
+  }, [court, date]);
 
-      return { hour: h, notAvailable };
-    });
-  }, [date, court, refreshKey]);
-
+  // 🔹 Confirmar reserva real
   const handleConfirm = () => {
     setMsg("");
 
     if (!user) {
-      setMsg("Tienes que iniciar sesión para confirmar una reserva.");
+      setMsg("Debes iniciar sesión para reservar.");
       return;
     }
+
     if (!selectedHour) {
       setMsg("Selecciona una hora.");
       return;
     }
 
-    // creamos la reserva usando el service (tu reservasService puede llamarse createBooking o create)
-    // ✅ intentamos primero createBooking (lo normal)
-    let res;
+    fetch("http://localhost:8080/api/reservas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        fecha: date,
+        hora: selectedHour,
+        estado: "ACTIVA",
+        pista: { id: court },
+        usuario: { id: user.id },
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Hora ocupada");
+        return res.json();
+      })
+      .then(() => {
+        setSelectedHour("");
+        setMsg("✅ Reserva confirmada.");
 
-    if (typeof reservasService.createBooking === "function") {
-      res = reservasService.createBooking({
-        user,
-        date,
-        time: selectedHour,
-        court,
+        // Recargar disponibilidad
+        return fetch(
+          `http://localhost:8080/api/reservas/disponibilidad?pistaId=${court}&fecha=${date}`,
+          { credentials: "include" },
+        );
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        const limpio = data.map((h) => h.substring(0, 5));
+        setAvailableSlots(limpio);
+      })
+      .catch(() => {
+        setMsg("Esa hora ya no está disponible.");
       });
-    } else if (typeof reservasService.create === "function") {
-      // fallback por si tu service se llama create
-      res = reservasService.create({ user, date, time: selectedHour, court });
-    } else {
-      setMsg("Error interno: falta createBooking/create en reservasService.");
-      return;
-    }
-
-    // si tu service devuelve {ok, error}:
-    if (res && res.ok === false) {
-      setMsg("Esa hora no está disponible.");
-      return;
-    }
-
-    // si tu service devuelve booleano:
-    if (res === false) {
-      setMsg("Esa hora no está disponible.");
-      return;
-    }
-
-    setSelectedHour("");
-    setMsg("✅ Reserva confirmada.");
   };
 
   return (
@@ -151,7 +159,7 @@ export default function Reservas() {
             <Card.Body>
               <Row className="g-2">
                 <Col sm={6}>
-                  <Form.Label className="mb-1">Fecha</Form.Label>
+                  <Form.Label>Fecha</Form.Label>
                   <Form.Control
                     type="date"
                     value={date}
@@ -163,7 +171,7 @@ export default function Reservas() {
                 </Col>
 
                 <Col sm={6}>
-                  <Form.Label className="mb-1">Pista</Form.Label>
+                  <Form.Label>Pista</Form.Label>
                   <Form.Select
                     value={court}
                     onChange={(e) => {
@@ -172,7 +180,7 @@ export default function Reservas() {
                     }}
                   >
                     {courts.map((c) => (
-                      <option key={c.id_pista} value={c.id_pista}>
+                      <option key={c.id} value={c.id}>
                         {c.nombre}
                       </option>
                     ))}
@@ -181,7 +189,7 @@ export default function Reservas() {
               </Row>
 
               <div className="mt-3 d-flex justify-content-between align-items-center">
-                <div className="text-secondary" style={{ fontSize: ".92rem" }}>
+                <div className="text-secondary">
                   {user ? (
                     <>
                       Sesión: <b>{user.email}</b>
@@ -205,33 +213,38 @@ export default function Reservas() {
       {msg && (
         <Alert
           variant={msg.startsWith("✅") ? "success" : "warning"}
-          onClose={() => setMsg("")}
           dismissible
+          onClose={() => setMsg("")}
         >
           {msg}
         </Alert>
       )}
 
+      {/* 🔹 Botones dinámicos reales */}
       <Row className="g-3">
-        {hoursStatus.map((h) => (
-          <Col key={h.hour} xs={6} sm={4} md={3} lg={2}>
-            <Button
-              className="w-100"
-              variant={
-                h.notAvailable
-                  ? "secondary" // 👈 bloqueada o reservada: igual
-                  : selectedHour === h.hour
-                    ? "primary"
-                    : "success"
-              }
-              disabled={h.notAvailable}
-              onClick={() => setSelectedHour(h.hour)}
-              style={{ fontWeight: 700 }}
-            >
-              {h.hour}
-            </Button>
-          </Col>
-        ))}
+        {HOURS.map((hour) => {
+          const notAvailable = !availableSlots.includes(hour);
+
+          return (
+            <Col key={hour} xs={6} sm={4} md={3} lg={2}>
+              <Button
+                className="w-100"
+                variant={
+                  notAvailable
+                    ? "secondary"
+                    : selectedHour === hour
+                      ? "primary"
+                      : "success"
+                }
+                disabled={notAvailable}
+                onClick={() => setSelectedHour(hour)}
+                style={{ fontWeight: 700 }}
+              >
+                {hour}
+              </Button>
+            </Col>
+          );
+        })}
       </Row>
 
       <div className="d-flex justify-content-end mt-4">
@@ -241,7 +254,7 @@ export default function Reservas() {
       </div>
 
       <Card className="shadow-sm border-0 mt-4">
-        <Card.Body className="text-secondary" style={{ fontSize: ".92rem" }}>
+        <Card.Body className="text-secondary">
           Puedes gestionar tus reservas desde <b>Mi cuenta</b>.
         </Card.Body>
       </Card>
