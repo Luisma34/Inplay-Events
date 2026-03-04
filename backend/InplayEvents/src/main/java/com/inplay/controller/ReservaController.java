@@ -28,6 +28,7 @@ public class ReservaController {
         return ResponseEntity.ok(reservas);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/disponibilidad")
     public List<LocalTime> disponibilidad(
             @RequestParam Integer pistaId,
