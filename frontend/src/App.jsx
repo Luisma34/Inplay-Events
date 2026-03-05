@@ -15,7 +15,6 @@ import Register from "./pages/Register";
 import Acceso from "./pages/Accseso.jsx";
 import LigaDetalle from "./pages/LigaDetalle";
 
-
 import MiCuenta from "./pages/MiCuenta";
 import Admin from "./pages/Admin";
 import Profesor from "./pages/Profesor";
@@ -30,8 +29,6 @@ import PoliticaCookies from "./pages/PoliticaCookies";
 
 import RequireAuth from "./auth/RequireAuth";
 import { getUser, setUser, clearUser } from "./auth/auth";
-
-
 
 export default function App() {
   const [user, setUserState] = useState(null);
@@ -56,19 +53,29 @@ export default function App() {
       <AppHeader user={user} onLogout={handleLogout} />
 
       <Routes>
-        {/* Públicas */}
+
+        {/* RUTAS PUBLICAS */}
         <Route path="/" element={<Home />} />
-        <Route path="/reservas" element={<Reservas />} />
         <Route path="/ligas" element={<Ligas />} />
+        <Route path="/ligas/:id" element={<LigaDetalle />} />
         <Route path="/clases" element={<Clases />} />
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/buscar-partidos" element={<BuscarPartidos />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/acceso" element={<Acceso user={user} />} />
-        <Route path="/ligas/:id" element={<LigaDetalle />} />
 
-        {/* Privadas */}
+        {/* RESERVAS requiere login */}
+        <Route
+          path="/reservas"
+          element={
+            <RequireAuth user={user}>
+              <Reservas />
+            </RequireAuth>
+          }
+        />
+
+        {/* CUENTA DEL USUARIO */}
         <Route
           path="/mi-cuenta"
           element={
@@ -78,6 +85,7 @@ export default function App() {
           }
         />
 
+        {/* PROFESOR */}
         <Route
           path="/profesor"
           element={
@@ -87,6 +95,7 @@ export default function App() {
           }
         />
 
+        {/* ADMIN PRINCIPAL */}
         <Route
           path="/admin"
           element={
@@ -95,47 +104,52 @@ export default function App() {
             </RequireAuth>
           }
         />
-<Route
-  path="/admin/noticias"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminNoticias />
-    </RequireAuth>
-  }
-/>
 
-<Route
-  path="/admin/ligas"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminLigas />
-    </RequireAuth>
-  }
-/>
-<Route
-  path="/admin/reservas"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminReservas />
-    </RequireAuth>
-  }
-/>
+        {/* ADMIN NOTICIAS */}
+        <Route
+          path="/admin/noticias"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminNoticias />
+            </RequireAuth>
+          }
+        />
 
-<Route
-  path="/admin/usuarios"
-  element={
-    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-      <AdminUsuarios />
-    </RequireAuth>
-  }
-/>
+        {/* ADMIN LIGAS */}
+        <Route
+          path="/admin/ligas"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminLigas />
+            </RequireAuth>
+          }
+        />
 
+        {/* ADMIN RESERVAS */}
+        <Route
+          path="/admin/reservas"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminReservas />
+            </RequireAuth>
+          }
+        />
 
+        {/* ADMIN USUARIOS */}
+        <Route
+          path="/admin/usuarios"
+          element={
+            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+              <AdminUsuarios />
+            </RequireAuth>
+          }
+        />
 
-        {/* Legales */}
+        {/* PAGINAS LEGALES */}
         <Route path="/aviso-legal" element={<AvisoLegal />} />
         <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
         <Route path="/politica-cookies" element={<PoliticaCookies />} />
+
       </Routes>
 
       <AppFooter />
