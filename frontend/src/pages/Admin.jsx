@@ -33,6 +33,7 @@ export default function Admin() {
           {
             title: "Usuarios",
             text: "Roles, altas/bajas y permisos.",
+            to: "/admin/usuarios",
           },
         ].map((x) => (
           <Col key={x.title} md={6} lg={3}>

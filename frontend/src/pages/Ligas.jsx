@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Card, Badge, Form, Button } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Badge,
+  Form,
+  Button,
+  Alert,
+} from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
 import { leagueService } from "../services/leagueService";
@@ -18,21 +27,75 @@ export default function Ligas() {
   const [level, setLevel] = useState("Todos");
   const [status, setStatus] = useState("Todos");
 
+  // mensajes informativos (inscripción ok / errores)
+  const [msg, setMsg] = useState("");
+
+  // función para recargar ligas desde el service
+  // la usamos al cargar la página y después de apuntarnos a una liga
+  const refresh = () => {
+    setLigas(leagueService.getAll());
+  };
+
   useEffect(() => {
-    setLigas(leagueService.getAll()); // SOLO publicadas
+    refresh();
+
+    // si en otra parte de la app se cambia localStorage (admin, etc),
+    // queremos que esta lista se refresque sin recargar la página
+    const onInternal = () => refresh();
+
+    window.addEventListener("inplay:ligas-updated", onInternal);
+
+    return () => {
+      window.removeEventListener("inplay:ligas-updated", onInternal);
+    };
   }, []);
 
   const filtered = useMemo(() => {
     return ligas.filter((l) => {
+      const ligaStatus = l.status || "Próximamente";
       const okLevel = level === "Todos" || l.level === level;
-      const okStatus = status === "Todos" || (l.status || "Próximamente") === status;
+      const okStatus = status === "Todos" || ligaStatus === status;
       return okLevel && okStatus;
     });
   }, [ligas, level, status]);
 
+  // comprueba si el usuario actual está inscrito en una liga
+  // en V1 guardamos la inscripción como email dentro de l.members
+  const isJoined = (league) => {
+    if (!user?.email) return false;
+    const members = Array.isArray(league.members) ? league.members : [];
+    return members.includes(user.email);
+  };
+
+  // inscripción V1 (localStorage)
+  // cuando conectemos backend, esto será un fetch a la API
+  const handleJoin = (leagueId) => {
+    setMsg("");
+
+    if (!user) {
+      setMsg("Tienes que iniciar sesión para apuntarte.");
+      return;
+    }
+
+    const res = leagueService.joinLeague({
+      leagueId,
+      userEmail: user.email,
+    });
+
+    if (!res.ok) {
+      if (res.reason === "NOT_OPEN") setMsg("Esta liga no está abierta.");
+      else if (res.reason === "ALREADY_JOINED") setMsg("Ya estás inscrito en esta liga.");
+      else setMsg("No se pudo completar la inscripción.");
+      return;
+    }
+
+    // actualizamos la lista para que el botón cambie a “ya inscrito”
+    refresh();
+    setMsg("Inscripción realizada.");
+  };
+
   return (
     <Container className="py-5">
-      {/* Cabecera */}
       <Row className="align-items-end g-3 mb-4">
         <Col md={7}>
           <h1 className="fw-bold mb-1">Ligas</h1>
@@ -41,7 +104,6 @@ export default function Ligas() {
           </p>
         </Col>
 
-        {/* Filtros */}
         <Col md={5}>
           <Card className="shadow-sm border-0">
             <Card.Body>
@@ -73,7 +135,12 @@ export default function Ligas() {
         </Col>
       </Row>
 
-      {/* Listado */}
+      {msg && (
+        <Alert variant="info" onClose={() => setMsg("")} dismissible>
+          {msg}
+        </Alert>
+      )}
+
       <Row className="g-3">
         {filtered.length === 0 ? (
           <Col>
@@ -84,59 +151,88 @@ export default function Ligas() {
             </Card>
           </Col>
         ) : (
-          filtered.map((l) => (
-            <Col key={l.id} xs={12} md={6} lg={4}>
-              <Card className="h-100 shadow-sm border-0">
-                <Card.Body className="d-flex flex-column">
-                  <div className="d-flex justify-content-between align-items-start gap-2">
-                    <div>
-                      <h3 className="h5 fw-bold mb-1">{l.name}</h3>
-                      <div className="text-secondary">
-                        Nivel: <span className="fw-semibold">{l.level}</span>
+          filtered.map((l) => {
+            const joined = isJoined(l);
+            const ligaStatus = l.status || "Próximamente";
+            const canJoin = user && ligaStatus === "Abierta" && !joined;
+
+            return (
+              <Col key={l.id} xs={12} md={6} lg={4}>
+                <Card className="h-100 shadow-sm border-0">
+                  <Card.Body className="d-flex flex-column">
+                    <div className="d-flex justify-content-between align-items-start gap-2">
+                      <div>
+                        <h3 className="h5 fw-bold mb-1">{l.name}</h3>
+                        <div className="text-secondary">
+                          Nivel: <span className="fw-semibold">{l.level}</span>
+                        </div>
                       </div>
+
+                      <Badge bg={statusBadgeVariant(ligaStatus)}>
+                        {ligaStatus}
+                      </Badge>
                     </div>
 
-                    <Badge bg={statusBadgeVariant(l.status || "Próximamente")}>
-                      {l.status || "Próximamente"}
-                    </Badge>
-                  </div>
+                    <p className="text-secondary mt-3 mb-3">{l.description}</p>
 
-                  <p className="text-secondary mt-3 mb-3">{l.description}</p>
+                    <div className="d-flex flex-wrap gap-2 mt-auto">
+                      <Badge bg="light" text="dark">
+                        Equipos: {l.teams ?? 0}
+                      </Badge>
+                      <Badge bg="light" text="dark">
+                        Inicio: {l.startDate ? l.startDate : "Por confirmar"}
+                      </Badge>
 
-                  <div className="d-flex flex-wrap gap-2 mt-auto">
-                    <Badge bg="light" text="dark">
-                      Equipos: {l.teams ?? 0}
-                    </Badge>
-                    <Badge bg="light" text="dark">
-                      Inicio: {l.startDate ? l.startDate : "Por confirmar"}
-                    </Badge>
-                  </div>
+                      {/* esto es útil para comprobar que se está guardando la inscripción */}
+                      {joined && <Badge bg="success">Inscrito</Badge>}
+                    </div>
 
-                  <div className="mt-3 d-grid gap-2">
-                    {!user ? (
-                      <Button as={Link} to="/login" variant="primary">
-                        Inicia sesión para apuntarte
+                    <div className="mt-3 d-grid gap-2">
+                      {/* Botón para ir al detalle de la liga */}
+                      <Button
+                        as={Link}
+                        to={`/ligas/${l.id}`}
+                        variant="outline-secondary"
+                      >
+                        Ver liga
                       </Button>
-                    ) : (
-                      <Button variant="primary" disabled={(l.status || "Próximamente") !== "Abierta"}>
-                        {(l.status || "Próximamente") === "Abierta"
-                          ? "Apuntarme (próximamente)"
-                          : "No disponible"}
-                      </Button>
-                    )}
 
-                    <Button variant="outline-secondary" disabled>
-                      Ver clasificación (próximamente)
-                    </Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))
+                      {/* Botón de inscripción */}
+                      {!user ? (
+                        <Button as={Link} to="/login" variant="primary">
+                          Inicia sesión para apuntarte
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="primary"
+                          onClick={() => handleJoin(l.id)}
+                          disabled={!canJoin}
+                        >
+                          {joined
+                            ? "Ya estás inscrito"
+                            : ligaStatus === "Abierta"
+                            ? "Apuntarme"
+                            : "No disponible"}
+                        </Button>
+                      )}
+
+                      {/* En V1 lo mandamos al detalle, donde están los Tabs */}
+                      <Button
+                        variant="outline-secondary"
+                        as={Link}
+                        to={`/ligas/${l.id}`}
+                      >
+                        Ver clasificación
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            );
+          })
         )}
       </Row>
 
-      {/* CTA inferior */}
       <Card className="shadow-sm border-0 mt-5">
         <Card.Body className="p-4 p-md-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
           <div>

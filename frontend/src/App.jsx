@@ -13,6 +13,7 @@ import BuscarPartidos from "./pages/BuscarPartidos";
 import Noticias from "./pages/Noticias";
 import Register from "./pages/Register";
 import Acceso from "./pages/Accseso.jsx";
+import LigaDetalle from "./pages/LigaDetalle";
 
 
 import MiCuenta from "./pages/MiCuenta";
@@ -21,6 +22,7 @@ import Profesor from "./pages/Profesor";
 import AdminNoticias from "./pages/AdminNoticias";
 import AdminLigas from "./pages/AdminLigas";
 import AdminReservas from "./pages/AdminReservas";
+import AdminUsuarios from "./pages/AdminUsuarios";
 
 import AvisoLegal from "./pages/AvisoLegal";
 import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
@@ -64,6 +66,7 @@ export default function App() {
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/acceso" element={<Acceso user={user} />} />
+        <Route path="/ligas/:id" element={<LigaDetalle />} />
 
         {/* Privadas */}
         <Route
@@ -114,6 +117,15 @@ export default function App() {
   element={
     <RequireAuth user={user} allowedRoles={["ADMIN"]}>
       <AdminReservas />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/admin/usuarios"
+  element={
+    <RequireAuth user={user} allowedRoles={["ADMIN"]}>
+      <AdminUsuarios />
     </RequireAuth>
   }
 />

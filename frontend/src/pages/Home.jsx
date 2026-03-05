@@ -197,7 +197,7 @@ export default function Home() {
       to="/clases"
       size="lg"
       className="btn-hero"
-      disabled
+      
     >
       APÚNTATE
     </Button>
