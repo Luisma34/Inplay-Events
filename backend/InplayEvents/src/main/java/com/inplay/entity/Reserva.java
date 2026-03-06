@@ -1,5 +1,6 @@
 package com.inplay.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,8 +40,10 @@ public class Reserva {
     @Column(nullable = false)
     private LocalDate fecha;
 
-    // Guarda SOLO hora (hora, minutos, segundos)
+
     @Column(nullable = false)
+    // @JsonFormat(pattern = "HH:mm") -> formatea la hora en formato de 24 horas (ejemplo: 14:30)
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime hora;
 
     @Enumerated(EnumType.STRING)
