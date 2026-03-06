@@ -54,6 +54,11 @@ public class ReservaService {
         return reservaRepository.save(reserva);
     }
 
+    // Obtener reservas de un usuario específico
+    public List<Reserva> obtenerReservasUsuario(Integer usuarioId) {
+        return reservaRepository.findByUsuario_Id(usuarioId);
+    }
+
     public void cancelarReserva(Integer id) {
         reservaRepository.deleteById(id);
     }

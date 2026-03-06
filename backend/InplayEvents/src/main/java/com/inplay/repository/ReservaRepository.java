@@ -15,5 +15,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     List<Reserva> findByPista_IdAndFecha(Integer pistaId, LocalDate fecha);
 
+    List<Reserva> findByUsuario_Id(Integer usuarioId);
+
     boolean existsByPista_IdAndFechaAndHora(Integer pistaId, LocalDate fecha, LocalTime hora);
 }

@@ -2,11 +2,14 @@ package com.inplay.controller;
 
 
 import com.inplay.entity.Reserva;
+import com.inplay.entity.Usuario;
+import com.inplay.repository.UsuarioRepository;
 import com.inplay.service.ReservaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -19,6 +22,7 @@ import java.util.List;
 public class ReservaController {
 
     private final ReservaService reservaService;
+    private final UsuarioRepository usuarioRepository;
 
     //ResponseEntity -> respuesta HTTP con código de estado y cuerpo.
     @PreAuthorize("isAuthenticated()")
@@ -44,6 +48,20 @@ public class ReservaController {
     public ResponseEntity<Reserva> crear(@RequestBody Reserva reserva) {
         Reserva creada = reservaService.guardarReserva(reserva);
         return ResponseEntity.ok(creada);
+    }
+
+    // @GetMapping("/mis-reservas") -> maneja solicitudes GET para obtener las reservas del usuario autenticado.
+    // Authentication auth -> proporciona información sobre el usuario autenticado, como su nombre de usuario (email).
+    // usuarioRepository.findByEmail(auth.getName()) -> busca el usuario en la base de datos usando su email.
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/mis-reservas")
+    public List<Reserva> misReservas(Authentication auth) {
+
+        Usuario usuario = usuarioRepository
+                .findByEmail(auth.getName())
+                .orElseThrow();
+
+        return reservaService.obtenerReservasUsuario(usuario.getId());
     }
 
     // @DeleteMapping -> maneja solicitudes DELETE para cancelar una reserva por su ID.
