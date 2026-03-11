@@ -160,4 +160,13 @@ public class UsuarioService {
 
     }
 
+    // Metodo para obtener el usuario autenticado a partir del objeto Authentication
+    public Usuario obtenerUsuarioAutenticado(Authentication auth) {
+
+        String email = auth.getName();
+
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
 }

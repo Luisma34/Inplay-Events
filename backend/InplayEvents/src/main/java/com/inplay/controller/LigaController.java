@@ -1,10 +1,14 @@
 package com.inplay.controller;
 
 import com.inplay.entity.Liga;
+import com.inplay.entity.Usuario;
 import com.inplay.service.LigaService;
+import com.inplay.service.LigaUsuarioService;
+import com.inplay.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +24,8 @@ public class LigaController {
     // Inyección de dependencias
     // LigaService es una clase de servicio que contiene la lógica de negocio relacionada con las ligas.
     private final LigaService ligaService;
+    private final UsuarioService usuarioService;
+    private final LigaUsuarioService ligaUsuarioService;
 
     // El metodo obtenerTodas() maneja las solicitudes GET a la ruta "/api/ligas".
     // Utiliza el servicio para obtener todas las ligas y devuelve una respuesta HTTP con la lista de ligas.
@@ -61,6 +67,22 @@ public class LigaController {
         Liga createdLiga = ligaService.guardar(liga);
         return ResponseEntity.status(201).body(createdLiga);
     }
+
+    // El metodo unirseLiga() maneja las solicitudes POST a la ruta "/api/ligas/{ligaId}/unirse".
+    // Recibe un ID de liga como parte de la URL y la autenticación del usuario que realiza la solicitud.
+    // Utiliza el servicio para obtener el usuario autenticado.
+    // Luego, llama al servicio LigaUsuarioService para que el usuario se una a la liga especificada.
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{ligaId}/unirse")
+    public ResponseEntity<Void> unirseLiga(@PathVariable Integer ligaId, Authentication auth) {
+
+        Usuario usuario = usuarioService.obtenerUsuarioAutenticado(auth);
+
+        ligaUsuarioService.unirse(ligaId, usuario.getId());
+
+        return ResponseEntity.ok().build();
+    }
+
 
     // El metodo deleteLiga() maneja las solicitudes DELETE a la ruta "/api/ligas/{id}".
     // Recibe un ID de liga como parte de la URL, elimina la liga correspondiente utilizando el servicio
