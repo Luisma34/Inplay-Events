@@ -31,7 +31,7 @@ export default function Ligas() {
 
   // función para cargar las ligas desde la API
   const refresh = () => {
-    fetch("http: //localhost:8080/api/ligas", {
+    fetch("http://localhost:8080/api/ligas", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -62,40 +62,25 @@ export default function Ligas() {
     });
   }, [ligas, level, status]);
 
-  // comprueba si el usuario actual está inscrito en una liga
-  // en V1 guardamos la inscripción como email dentro de l.members
-  const isJoined = (league) => {
-    if (!user?.email) return false;
-    const members = Array.isArray(league.members) ? league.members : [];
-    return members.includes(user.email);
-  };
-
   // inscripción V1 (localStorage)
   // cuando conectemos backend, esto será un fetch a la API
   const handleJoin = (leagueId) => {
     setMsg("");
 
-    if (!user) {
-      setMsg("Tienes que iniciar sesión para apuntarte.");
-      return;
-    }
-
-    const res = leagueService.joinLeague({
-      leagueId,
-      userEmail: user.email,
-    });
-
-    if (!res.ok) {
-      if (res.reason === "NOT_OPEN") setMsg("Esta liga no está abierta.");
-      else if (res.reason === "ALREADY_JOINED")
-        setMsg("Ya estás inscrito en esta liga.");
-      else setMsg("No se pudo completar la inscripción.");
-      return;
-    }
-
-    // actualizamos la lista para que el botón cambie a “ya inscrito”
-    refresh();
-    setMsg("Inscripción realizada.");
+    fetch(`http://localhost:8080/api/ligas/${leagueId}/unirse`, {
+      method: "POST",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok) {
+          refresh();
+          setMsg("Inscripción realizada.");
+        } else {
+          setMsg("No se pudo completar la inscripción.");
+        }
+      })
+      .catch(() => setMsg("Error al conectar con el servidor."));
   };
 
   return (
