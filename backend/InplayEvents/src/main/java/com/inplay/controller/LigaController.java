@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ligas")
@@ -74,13 +75,13 @@ public class LigaController {
     // Luego, llama al servicio LigaUsuarioService para que el usuario se una a la liga especificada.
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{ligaId}/unirse")
-    public ResponseEntity<Void> unirseLiga(@PathVariable Integer ligaId, Authentication auth) {
+    public ResponseEntity<Map<String, Boolean>> unirseLiga(@PathVariable Integer ligaId, Authentication auth) {
 
         Usuario usuario = usuarioService.obtenerUsuarioAutenticado(auth);
 
         ligaUsuarioService.unirse(ligaId, usuario.getId());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of("ok",true));
     }
 
 
