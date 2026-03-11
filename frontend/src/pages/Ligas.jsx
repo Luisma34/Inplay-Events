@@ -11,7 +11,6 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
-import { leagueService } from "../services/leagueService";
 
 function statusBadgeVariant(status) {
   if (status === "Abierta") return "success";
@@ -30,10 +29,14 @@ export default function Ligas() {
   // mensajes informativos (inscripción ok / errores)
   const [msg, setMsg] = useState("");
 
-  // función para recargar ligas desde el service
-  // la usamos al cargar la página y después de apuntarnos a una liga
+  // función para cargar las ligas desde la API
   const refresh = () => {
-    setLigas(leagueService.getAll());
+    fetch("http: //localhost:8080/api/ligas", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => setLigas(data))
+      .catch(() => setLigas([]));
   };
 
   useEffect(() => {
@@ -52,8 +55,8 @@ export default function Ligas() {
 
   const filtered = useMemo(() => {
     return ligas.filter((l) => {
-      const ligaStatus = l.status || "Próximamente";
-      const okLevel = level === "Todos" || l.level === level;
+      const ligaStatus = l.estado || "Próximamente";
+      const okLevel = level === "Todos" || l.categoria === level;
       const okStatus = status === "Todos" || ligaStatus === status;
       return okLevel && okStatus;
     });
@@ -84,7 +87,8 @@ export default function Ligas() {
 
     if (!res.ok) {
       if (res.reason === "NOT_OPEN") setMsg("Esta liga no está abierta.");
-      else if (res.reason === "ALREADY_JOINED") setMsg("Ya estás inscrito en esta liga.");
+      else if (res.reason === "ALREADY_JOINED")
+        setMsg("Ya estás inscrito en esta liga.");
       else setMsg("No se pudo completar la inscripción.");
       return;
     }
@@ -110,7 +114,10 @@ export default function Ligas() {
               <Row className="g-2">
                 <Col sm={6}>
                   <Form.Label className="mb-1">Nivel</Form.Label>
-                  <Form.Select value={level} onChange={(e) => setLevel(e.target.value)}>
+                  <Form.Select
+                    value={level}
+                    onChange={(e) => setLevel(e.target.value)}
+                  >
                     <option>Todos</option>
                     <option>Iniciación</option>
                     <option>Intermedio</option>
@@ -122,7 +129,10 @@ export default function Ligas() {
 
                 <Col sm={6}>
                   <Form.Label className="mb-1">Estado</Form.Label>
-                  <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
+                  <Form.Select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
                     <option>Todos</option>
                     <option>Abierta</option>
                     <option>Activa</option>
@@ -162,9 +172,9 @@ export default function Ligas() {
                   <Card.Body className="d-flex flex-column">
                     <div className="d-flex justify-content-between align-items-start gap-2">
                       <div>
-                        <h3 className="h5 fw-bold mb-1">{l.name}</h3>
+                        <h3 className="h5 fw-bold mb-1">{l.nombre}</h3>
                         <div className="text-secondary">
-                          Nivel: <span className="fw-semibold">{l.level}</span>
+                          Nivel: <span className="fw-semibold">{l.categoria}</span>
                         </div>
                       </div>
 
@@ -211,8 +221,8 @@ export default function Ligas() {
                           {joined
                             ? "Ya estás inscrito"
                             : ligaStatus === "Abierta"
-                            ? "Apuntarme"
-                            : "No disponible"}
+                              ? "Apuntarme"
+                              : "No disponible"}
                         </Button>
                       )}
 

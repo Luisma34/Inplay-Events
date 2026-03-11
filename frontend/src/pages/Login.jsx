@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { setUser } from "../auth/auth";
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -68,11 +69,15 @@ export default function Login({ onLogin }) {
       const userData = await meRes.json();
 
       //  Guardar usuario real
-      onLogin?.({
+      const user ={
+        id: userData.id,
         name: userData.nombre,
         email: userData.email,
         role: userData.rol?.rol?.replace("ROLE_", ""), // viene como ROLE_ADMIN, ROLE_USUARIO...
-      });
+      };
+
+      setUser(user); // guarda en localStorage
+      onLogin?.(user); // actualizado el estado de React 
 
       navigate("/");
     } catch (err) {

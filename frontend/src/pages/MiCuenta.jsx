@@ -12,8 +12,6 @@ import {
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
 
-const RESERVAS_KEY = "inplay_reservas_v1";
-
 // DEMO V1 (ligas aún fake; luego backend)
 const demoLigas = [
   { id: 1, name: "Liga InPlay - Intermedio", status: "Activa", position: 5 },
@@ -30,18 +28,30 @@ function badgeVariantByStatus(status) {
   return "dark";
 }
 
-function loadReservas() {
-  const raw = localStorage.getItem(RESERVAS_KEY);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
 export default function MiCuenta() {
   const user = getUser();
+
+  const [myReservas, setMyReservas] = useState([]);
+  
+  // Cargar reservas del usuario al montar el componente
+  useEffect(() => {
+    fetch("http://localhost:8080/api/reservas/mis-reservas", {
+      credentials: "include",
+    })
+    // El backend devuelve las horas como "HH:mm" o como objetos {hour: H, minute: M}, así que normalizamos ambos casos
+      .then((res) => {
+        // Si no es 200, probablemente no esté autenticado o haya un error, así que lanzamos para ir al catch
+        if (!res.ok) {
+          throw new Error("Error cargando reservas");
+        }
+        return res.json();
+      })
+      .then((data) => setMyReservas(data))
+      .catch((err) => {
+        console.error(err);
+        setMyReservas([]);
+      });
+  }, []);
 
   // Perfil editable demo
   const [profile, setProfile] = useState({
@@ -58,51 +68,19 @@ export default function MiCuenta() {
     alert("Guardado (demo). En V2 se conecta al backend.");
   };
 
-  // ✅ Reservas reales (desde Reservas.jsx)
-  const [allReservas, setAllReservas] = useState([]);
-
-  useEffect(() => {
-    const refresh = () => setAllReservas(loadReservas());
-
-    refresh();
-
-    const onStorage = (e) => {
-      if (e.key === RESERVAS_KEY) refresh();
-    };
-    const onInternal = () => refresh();
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("inplay:reservas-updated", onInternal);
-
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("inplay:reservas-updated", onInternal);
-    };
-  }, []);
-
-  const myReservas = useMemo(() => {
-    if (!user?.email) return [];
-    return allReservas
-      .filter((r) => r.userEmail === user.email)
-      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-  }, [allReservas, user]);
-
-  // ✅ NUEVO: cancelar reserva (marca status=Cancelada y guarda)
   const handleCancelReserva = (id) => {
     const ok = window.confirm("¿Seguro que quieres cancelar esta reserva?");
     if (!ok) return;
 
-    const updated = allReservas.map((r) =>
-      r.id === id
-        ? { ...r, status: "Cancelada", cancelledAt: new Date().toISOString() }
-        : r
-    );
-
-    localStorage.setItem(RESERVAS_KEY, JSON.stringify(updated));
-    setAllReservas(updated);
-
-    // avisa a /reservas en la misma pestaña
-    window.dispatchEvent(new Event("inplay:reservas-updated"));
+    fetch(`http://localhost:8080/api/reservas/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error cancelando");
+        setMyReservas((prev) => prev.filter((r) => r.id !== id));
+      })
+      .catch(() => alert("Error al cancelar la reserva"));
   };
 
   return (
@@ -223,7 +201,7 @@ export default function MiCuenta() {
                         className="text-secondary"
                         style={{ fontSize: ".95rem" }}
                       >
-                        Tus reservas confirmadas (V1 localStorage).
+                        Tus reservas confirmadas.
                       </div>
                     </div>
                     <Button
@@ -248,24 +226,28 @@ export default function MiCuenta() {
                           <div className="d-flex justify-content-between align-items-start gap-3">
                             <div>
                               <div className="fw-semibold">
-                                {r.date} · {r.time}
+                                {r.fecha} · {r.hora}
                               </div>
-                              <div className="text-secondary">{r.court}</div>
+                              <div className="text-secondary">
+                                {r.pista.nombre}
+                              </div>
                             </div>
 
                             <div className="d-flex flex-column align-items-end gap-2">
-                              <Badge bg={badgeVariantByStatus(r.status)}>
-                                {r.status}
+                              <Badge bg={badgeVariantByStatus(r.estado)}>
+                                {r.estado}
                               </Badge>
 
                               {/* ✅ CAMBIO: cancelar real */}
                               <Button
                                 variant="outline-danger"
                                 size="sm"
-                                disabled={r.status === "Cancelada"}
+                                disabled={r.estado === "Cancelada"}
                                 onClick={() => handleCancelReserva(r.id)}
                               >
-                                {r.status === "Cancelada" ? "Cancelada" : "Cancelar"}
+                                {r.estado === "Cancelada"
+                                  ? "Cancelada"
+                                  : "Cancelar"}
                               </Button>
                             </div>
                           </div>
@@ -335,4 +317,3 @@ export default function MiCuenta() {
     </Container>
   );
 }
-

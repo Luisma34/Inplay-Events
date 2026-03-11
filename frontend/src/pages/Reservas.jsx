@@ -38,6 +38,24 @@ function todayISO() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function normalizarHora(hora) {
+  if (!hora) return "";
+
+  // Si viene como "08:00:00"
+  if (typeof hora === "string") {
+    return hora.substring(0, 5);
+  }
+
+  // Si viene como objeto (caso raro)
+  if (hora.hour !== undefined) {
+    return `${String(hora.hour).padStart(2, "0")}:${String(
+      hora.minute,
+    ).padStart(2, "0")}`;
+  }
+
+  return hora;
+}
+
 export default function Reservas() {
   const user = getUser();
 
@@ -50,6 +68,7 @@ export default function Reservas() {
 
   // 🔹 Cargar pistas desde backend
   useEffect(() => {
+    
     fetch("http://localhost:8080/api/pistas", {
       credentials: "include",
     })
@@ -118,8 +137,11 @@ export default function Reservas() {
         usuario: { id: user.id },
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Hora ocupada");
+      .then(async (res) => {
+        if (!res.ok) {
+          const texto = await res.text();
+          throw new Error(texto || "Error al reservar");
+        }
         return res.json();
       })
       .then(() => {
@@ -135,6 +157,8 @@ export default function Reservas() {
       .then((res) => res.json())
       .then((data) => {
         const limpio = data.map((h) => h.substring(0, 5));
+
+        console.log("Slots disponibles:", limpio);
         setAvailableSlots(limpio);
       })
       .catch(() => {
@@ -163,6 +187,7 @@ export default function Reservas() {
                   <Form.Control
                     type="date"
                     value={date}
+                    min ={todayISO()}
                     onChange={(e) => {
                       setDate(e.target.value);
                       setSelectedHour("");
