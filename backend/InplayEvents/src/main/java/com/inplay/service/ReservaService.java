@@ -27,6 +27,19 @@ public class ReservaService {
 
     public Reserva guardarReserva(Reserva reserva) {
 
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
+        // Validar fecha no pasada
+        if (reserva.getFecha().isBefore(hoy)) {
+            throw new IllegalStateException("No se puede reservar en días anteriores");
+        }
+
+        // No permitir horas pasadas para el mismo día
+        if (reserva.getFecha().isEqual(hoy) && reserva.getHora().isBefore(ahora)) {
+            throw new IllegalStateException("No se puede reservar una hora que ya pasó");
+        }
+
         // Validar usuario real desde BD
         Usuario usuario = usuarioRepository.findById(reserva.getUsuario().getId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
@@ -47,7 +60,7 @@ public class ReservaService {
                         reserva.getHora()
                 );
 
-        if(existe){
+        if (existe) {
             throw new IllegalStateException("La hora seleccionada ya está ocupada");
         }
 
@@ -93,9 +106,13 @@ public class ReservaService {
                 .map(Reserva::getHora)
                 .collect(Collectors.toSet());
 
-        //  Filtramos disponibles
+        //  Filtramos slots disponibles, excluyendo horas ocupadas y horas pasadas si es el mismo día
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
         return todosLosSlots.stream()
                 .filter(slot -> !horasOcupadas.contains(slot))
+                .filter(slot -> !(fecha.isEqual(hoy) && slot.isBefore(ahora)))
                 .toList();
     }
 }
