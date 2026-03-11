@@ -29,6 +29,12 @@ export default function Ligas() {
   // mensajes informativos (inscripción ok / errores)
   const [msg, setMsg] = useState("");
 
+  // función para comprobar si el usuario ya está inscrito en una liga
+   const isJoined = (liga) => {
+              if (!user) return false;
+              return liga.usuarios?.some((u) => u.id === user.id);
+            };
+
   // función para cargar las ligas desde la API
   const refresh = () => {
     fetch("http://localhost:8080/api/ligas", {
@@ -53,9 +59,16 @@ export default function Ligas() {
     };
   }, []);
 
+  function mapEstado(estado) {
+    if (estado === "ABIERTA") return "Abierta";
+    if (estado === "ACTIVA") return "Activa";
+    if (estado === "FINALIZADA") return "FINALIZADA";
+    return "Próximamente";
+  }
+
   const filtered = useMemo(() => {
     return ligas.filter((l) => {
-      const ligaStatus = l.estado || "Próximamente";
+      const ligaStatus = mapEstado(l.estado);
       const okLevel = level === "Todos" || l.categoria === level;
       const okStatus = status === "Todos" || ligaStatus === status;
       return okLevel && okStatus;
@@ -89,7 +102,7 @@ export default function Ligas() {
         <Col md={7}>
           <h1 className="fw-bold mb-1">Ligas</h1>
           <p className="text-secondary mb-0">
-            Elige tu nivel, apúntate y sigue la clasificación. (V1 pública)
+            Elige tu nivel, apúntate y sigue la clasificación. ¡A competir!
           </p>
         </Col>
 
@@ -146,9 +159,16 @@ export default function Ligas() {
             </Card>
           </Col>
         ) : (
+          // renderizamos las ligas que cumplen los filtros
           filtered.map((l) => {
+            // comprobamos si el usuario ya está inscrito en esta liga para mostrar el estado correcto.
+           const isJoined = (liga) => {              
+              if (!user) return false;
+              return liga.usuarios?.some((u) => u.id === user.id);
+            };
             const joined = isJoined(l);
-            const ligaStatus = l.status || "Próximamente";
+
+            const ligaStatus = mapEstado(l.estado);
             const canJoin = user && ligaStatus === "Abierta" && !joined;
 
             return (
@@ -159,7 +179,8 @@ export default function Ligas() {
                       <div>
                         <h3 className="h5 fw-bold mb-1">{l.nombre}</h3>
                         <div className="text-secondary">
-                          Nivel: <span className="fw-semibold">{l.categoria}</span>
+                          Nivel:{" "}
+                          <span className="fw-semibold">{l.categoria}</span>
                         </div>
                       </div>
 
@@ -168,14 +189,15 @@ export default function Ligas() {
                       </Badge>
                     </div>
 
-                    <p className="text-secondary mt-3 mb-3">{l.description}</p>
+                    <p className="text-secondary mt-3 mb-3">{l.descripcion}</p>
 
                     <div className="d-flex flex-wrap gap-2 mt-auto">
                       <Badge bg="light" text="dark">
-                        Equipos: {l.teams ?? 0}
+                        Equipos: {l.equipos ?? 0}
                       </Badge>
                       <Badge bg="light" text="dark">
-                        Inicio: {l.startDate ? l.startDate : "Por confirmar"}
+                        Inicio:{" "}
+                        {l.fechaInicio ? l.fechaInicio : "Por confirmar"}
                       </Badge>
 
                       {/* esto es útil para comprobar que se está guardando la inscripción */}

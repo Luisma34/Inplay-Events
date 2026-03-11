@@ -109,10 +109,11 @@ export default function Reservas() {
       .catch(() => setAvailableSlots([]));
   }, [court, date]);
 
-  // 🔹 Confirmar reserva real
+ // 🔹 Confirmar reserva (POST a backend)
   const handleConfirm = () => {
     setMsg("");
 
+    // Validaciones básicas antes de enviar a backend.
     if (!user) {
       setMsg("Debes iniciar sesión para reservar.");
       return;
