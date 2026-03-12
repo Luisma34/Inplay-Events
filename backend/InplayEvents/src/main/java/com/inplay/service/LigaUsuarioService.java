@@ -22,7 +22,7 @@ public class LigaUsuarioService {
 
     public void unirse(Integer ligaId, Integer usuarioId) {
 
-        if (ligaUsuarioRepository.existsByLiga_IdAndUsuario_Id(usuarioId, ligaId)) {
+        if (ligaUsuarioRepository.existsByLiga_IdAndUsuario_Id(ligaId, usuarioId)) {
             throw new IllegalStateException("Ya estás en esta liga");
         }
 
