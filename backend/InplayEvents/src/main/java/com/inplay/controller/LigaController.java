@@ -96,7 +96,7 @@ public class LigaController {
         return ResponseEntity.ok(Map.of("ok", true));
     }
 
-    //
+    // Ver ligas donde se ha inscrito el usuario.
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/mis-ligas")
     public List<Liga> misLigas(Authentication auth) {
