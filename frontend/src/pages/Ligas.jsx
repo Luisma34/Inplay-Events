@@ -30,10 +30,10 @@ export default function Ligas() {
   const [msg, setMsg] = useState("");
 
   // función para comprobar si el usuario ya está inscrito en una liga
-   const isJoined = (liga) => {
-              if (!user) return false;
-              return liga.usuarios?.some((u) => u.id === user.id);
-            };
+  const isJoined = (liga) => {
+    if (!user) return false;
+    return liga.usuarios?.some((u) => u.id === user.id);
+  };
 
   // función para cargar las ligas desde la API
   const refresh = () => {
@@ -84,14 +84,20 @@ export default function Ligas() {
       method: "POST",
       credentials: "include",
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.ok) {
-          refresh();
-          setMsg("Inscripción realizada.");
-        } else {
-          setMsg("No se pudo completar la inscripción.");
+      .then(async (res) => {
+        if (!res.ok) {
+          const msg = await res.text();
+          setMsg(msg);
+          return null;
         }
+
+        return res.text();
+      })
+      .then((data) => {
+        if (!data) return;
+
+        refresh();
+        setMsg("Inscripción realizada.");
       })
       .catch(() => setMsg("Error al conectar con el servidor."));
   };
@@ -162,17 +168,17 @@ export default function Ligas() {
           // renderizamos las ligas que cumplen los filtros
           filtered.map((l) => {
             // comprobamos si el usuario ya está inscrito en esta liga para mostrar el estado correcto.
-           const isJoined = (liga) => {              
+            const isJoined = (liga) => {
               if (!user) return false;
               return liga.usuarios?.some((u) => u.id === user.id);
             };
             const joined = isJoined(l);
-            
+
             // función para salir de la liga (solo si ya está inscrito)
             const handleLeave = (leagueId) => {
               fetch(`http://localhost:8080/api/ligas/${leagueId}/salir`, {
                 method: "DELETE",
-                credentials: "include", 
+                credentials: "include",
               })
                 .then((res) => res.json())
                 .then((data) => {
@@ -184,8 +190,8 @@ export default function Ligas() {
                   }
                 })
                 .catch(() => setMsg("Error al conectar con el servidor."));
-            }
-            
+            };
+
             // mapeamos el estado de la liga para mostrarlo bonito y para controlar la inscripción
             const ligaStatus = mapEstado(l.estado);
             const canJoin = user && ligaStatus === "Abierta" && !joined;
@@ -241,7 +247,9 @@ export default function Ligas() {
                       ) : (
                         <Button
                           variant="primary"
-                          onClick={() => joined ? handleLeave(l.id) : handleJoin(l.id)}
+                          onClick={() =>
+                            joined ? handleLeave(l.id) : handleJoin(l.id)
+                          }
                           disabled={!canJoin && !joined}
                         >
                           {joined

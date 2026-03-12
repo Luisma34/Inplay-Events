@@ -8,6 +8,7 @@ import {
   Badge,
   ListGroup,
   Form,
+  Modal,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
@@ -30,6 +31,11 @@ export default function MiCuenta() {
 
   // Datos para cargar reservas desde el backend en V2. Por ahora es demo.
   const [myReservas, setMyReservas] = useState([]);
+
+  // Estados para modales de cancelación
+  const [showModal, setShowModal] = useState(false);
+  // Para saber si estamos cancelando una reserva o una liga, y cuál es su id
+  const [accion, setAccion] = useState(null);
 
   // Cargar reservas del usuario al montar el componente
   useEffect(() => {
@@ -191,11 +197,11 @@ export default function MiCuenta() {
 
                 <Button
                   className="w-100"
-                  variant="outline-secondary"
+                  variant="outline-primary"
                   disabled={!canSaveProfile}
                   onClick={handleSaveProfile}
                 >
-                  Guardar cambios (demo)
+                  Guardar cambios
                 </Button>
               </Form>
             </Card.Body>
@@ -205,13 +211,13 @@ export default function MiCuenta() {
             <Card.Body>
               <div className="fw-bold mb-2">Accesos rápidos</div>
               <div className="d-grid gap-2">
-                <Button as={Link} to="/ligas" variant="outline-secondary">
+                <Button as={Link} to="/ligas" variant="outline-primary">
                   Ver ligas
                 </Button>
-                <Button as={Link} to="/clases" variant="outline-secondary">
+                <Button as={Link} to="/clases" variant="outline-primary">
                   Ver clases
                 </Button>
-                <Button as={Link} to="/reservas" variant="outline-secondary">
+                <Button as={Link} to="/reservas" variant="outline-primary">
                   Hacer una reserva
                 </Button>
               </div>
