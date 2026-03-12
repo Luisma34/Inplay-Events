@@ -75,13 +75,22 @@ public class LigaController {
     // Luego, llama al servicio LigaUsuarioService para que el usuario se una a la liga especificada.
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{ligaId}/unirse")
-    public ResponseEntity<Map<String, Boolean>> unirseLiga(@PathVariable Integer ligaId, Authentication auth) {
+    public ResponseEntity<?> unirseLiga(@PathVariable Integer ligaId, Authentication auth) {
 
-        Usuario usuario = usuarioService.obtenerUsuarioAutenticado(auth);
+        try {
 
-        ligaUsuarioService.unirse(ligaId, usuario.getId());
+            Usuario usuario = usuarioService.obtenerUsuarioAutenticado(auth);
 
-        return ResponseEntity.ok(Map.of("ok",true));
+            ligaUsuarioService.unirse(ligaId, usuario.getId());
+
+            return ResponseEntity.ok().build();
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity
+                    .status(409)
+                    .body("Ya estás inscrito en esta liga");
+        }
     }
 
     // Metodo para borrarse de una liga.

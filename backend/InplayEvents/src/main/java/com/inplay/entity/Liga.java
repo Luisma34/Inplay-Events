@@ -1,5 +1,6 @@
 package com.inplay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "liga", uniqueConstraints =
         @UniqueConstraint(columnNames = {"nombre", "categoria", "division"}))
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Liga {
 
     @Id
