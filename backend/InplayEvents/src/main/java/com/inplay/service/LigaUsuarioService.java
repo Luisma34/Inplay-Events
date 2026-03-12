@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,15 @@ public class LigaUsuarioService {
         ligaUsuario.setFechaAlta(LocalDate.now());
 
         ligaUsuarioRepository.save(ligaUsuario);
+    }
+
+    public List<Liga> obtenerLigasDeUsuario(Integer usuarioId) {
+
+        return ligaUsuarioRepository
+                .findByUsuario_Id(usuarioId)
+                .stream()
+                .map(LigaUsuario::getLiga)
+                .toList();
     }
 
     public void salir(Integer ligaId, Integer usuarioId) {

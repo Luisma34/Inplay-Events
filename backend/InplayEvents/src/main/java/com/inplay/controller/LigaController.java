@@ -96,6 +96,16 @@ public class LigaController {
         return ResponseEntity.ok(Map.of("ok", true));
     }
 
+    //
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/mis-ligas")
+    public List<Liga> misLigas(Authentication auth) {
+
+        Usuario usuario = usuarioService.obtenerUsuarioAutenticado(auth);
+
+        return ligaUsuarioService.obtenerLigasDeUsuario(usuario.getId());
+    }
+
 
     // El metodo deleteLiga() maneja las solicitudes DELETE a la ruta "/api/ligas/{id}".
     // Recibe un ID de liga como parte de la URL, elimina la liga correspondiente utilizando el servicio
