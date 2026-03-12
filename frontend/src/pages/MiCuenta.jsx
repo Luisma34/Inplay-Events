@@ -8,7 +8,7 @@ import {
   Badge,
   ListGroup,
   Form,
-  Modal,
+  Modal
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
@@ -31,11 +31,6 @@ export default function MiCuenta() {
 
   // Datos para cargar reservas desde el backend en V2. Por ahora es demo.
   const [myReservas, setMyReservas] = useState([]);
-
-  // Estados para modales de cancelación
-  const [showModal, setShowModal] = useState(false);
-  // Para saber si estamos cancelando una reserva o una liga, y cuál es su id
-  const [accion, setAccion] = useState(null);
 
   // Cargar reservas del usuario al montar el componente
   useEffect(() => {
