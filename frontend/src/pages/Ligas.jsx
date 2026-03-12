@@ -167,7 +167,26 @@ export default function Ligas() {
               return liga.usuarios?.some((u) => u.id === user.id);
             };
             const joined = isJoined(l);
-
+            
+            // función para salir de la liga (solo si ya está inscrito)
+            const handleLeave = (leagueId) => {
+              fetch(`http://localhost:8080/api/ligas/${leagueId}/salir`, {
+                method: "DELETE",
+                credentials: "include", 
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.ok) {
+                    refresh();
+                    setMsg("Has salido de la liga.");
+                  } else {
+                    setMsg("No se pudo completar la acción.");
+                  }
+                })
+                .catch(() => setMsg("Error al conectar con el servidor."));
+            }
+            
+            // mapeamos el estado de la liga para mostrarlo bonito y para controlar la inscripción
             const ligaStatus = mapEstado(l.estado);
             const canJoin = user && ligaStatus === "Abierta" && !joined;
 
@@ -222,11 +241,11 @@ export default function Ligas() {
                       ) : (
                         <Button
                           variant="primary"
-                          onClick={() => handleJoin(l.id)}
-                          disabled={!canJoin}
+                          onClick={() => joined ? handleLeave(l.id) : handleJoin(l.id)}
+                          disabled={!canJoin && !joined}
                         >
                           {joined
-                            ? "Ya estás inscrito"
+                            ? "Salir de la liga"
                             : ligaStatus === "Abierta"
                               ? "Apuntarme"
                               : "No disponible"}
