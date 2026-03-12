@@ -39,4 +39,13 @@ public class LigaUsuarioService {
 
         ligaUsuarioRepository.save(ligaUsuario);
     }
+
+    public void salir(Integer ligaId, Integer usuarioId) {
+
+        LigaUsuario lu = ligaUsuarioRepository
+                .findByLiga_idAndUsuario_Id(ligaId, usuarioId)
+                .orElseThrow(() -> new RuntimeException("No estás inscrito en esta liga"));
+
+        ligaUsuarioRepository.delete(lu);
+    }
 }

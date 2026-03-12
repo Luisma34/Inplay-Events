@@ -84,6 +84,18 @@ public class LigaController {
         return ResponseEntity.ok(Map.of("ok",true));
     }
 
+    // Metodo para borrarse de una liga.
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{ligaId}/salir")
+    public ResponseEntity<?> salirLiga(@PathVariable Integer ligaId, Authentication auth) {
+
+        Usuario usuario = usuarioService.obtenerUsuarioAutenticado(auth);
+
+        ligaUsuarioService.salir(ligaId, usuario.getId());
+
+        return ResponseEntity.ok(Map.of("ok", true));
+    }
+
 
     // El metodo deleteLiga() maneja las solicitudes DELETE a la ruta "/api/ligas/{id}".
     // Recibe un ID de liga como parte de la URL, elimina la liga correspondiente utilizando el servicio
