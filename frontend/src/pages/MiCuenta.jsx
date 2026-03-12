@@ -12,12 +12,6 @@ import {
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
 
-// DEMO V1 (ligas aún fake; luego backend)
-const demoLigas = [
-  { id: 1, name: "Liga InPlay - Intermedio", status: "Activa", position: 5 },
-  { id: 2, name: "Liga Mixta - Intermedio", status: "Abierta", position: null },
-];
-
 function badgeVariantByStatus(status) {
   if (status === "Confirmada") return "success";
   if (status === "Pendiente") return "warning";
@@ -31,14 +25,18 @@ function badgeVariantByStatus(status) {
 export default function MiCuenta() {
   const user = getUser();
 
+  // Datos para cargar ligas desde el backend en V2. Por ahora es demo.
+  const [misLigas, setMisLigas] = useState([]);
+
+  // Datos para cargar reservas desde el backend en V2. Por ahora es demo.
   const [myReservas, setMyReservas] = useState([]);
-  
+
   // Cargar reservas del usuario al montar el componente
   useEffect(() => {
     fetch("http://localhost:8080/api/reservas/mis-reservas", {
       credentials: "include",
     })
-    // El backend devuelve las horas como "HH:mm" o como objetos {hour: H, minute: M}, así que normalizamos ambos casos
+      // El backend devuelve las horas como "HH:mm" o como objetos {hour: H, minute: M}, así que normalizamos ambos casos
       .then((res) => {
         // Si no es 200, probablemente no esté autenticado o haya un error, así que lanzamos para ir al catch
         if (!res.ok) {
@@ -51,6 +49,19 @@ export default function MiCuenta() {
         console.error(err);
         setMyReservas([]);
       });
+  }, []);
+
+  // Cargar ligas del usuario al montar el componente (demo, en V2 se conecta al backend)
+  useEffect(() => {
+    fetch("http://localhost:8080/api/ligas/mis-ligas", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error cargando ligas");
+        return res.json();
+      })
+      .then((data) => setMisLigas(data))
+      .catch(() => setMisLigas([]));
   }, []);
 
   // Perfil editable demo
@@ -68,6 +79,26 @@ export default function MiCuenta() {
     alert("Guardado (demo). En V2 se conecta al backend.");
   };
 
+  // función para cancelar una reserva (solo si no está ya cancelada)
+  const handleCancelLiga = (ligaId) => {
+    const ok = window.confirm(
+      "¿Seguro que quieres cancelar tu inscripción en esta liga?",
+    );
+    if (!ok) return;
+
+    fetch(`http://localhost:8080/api/ligas/${ligaId}/salir`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error cancelando liga");
+
+        setMisLigas((prev) => prev.filter((l) => l.id !== ligaId));
+      })
+      .catch(() => alert("Error al cancelar la liga"));
+  };
+
+  // función para cancelar una reserva (solo si no está ya cancelada)
   const handleCancelReserva = (id) => {
     const ok = window.confirm("¿Seguro que quieres cancelar esta reserva?");
     if (!ok) return;
@@ -78,6 +109,7 @@ export default function MiCuenta() {
     })
       .then((res) => {
         if (!res.ok) throw new Error("Error cancelando");
+
         setMyReservas((prev) => prev.filter((r) => r.id !== id));
       })
       .catch(() => alert("Error al cancelar la reserva"));
@@ -270,7 +302,7 @@ export default function MiCuenta() {
                         className="text-secondary"
                         style={{ fontSize: ".95rem" }}
                       >
-                        Tus ligas activas y posición (V1 demo).
+                        Tus ligas activas.
                       </div>
                     </div>
                     <Button
@@ -283,26 +315,44 @@ export default function MiCuenta() {
                     </Button>
                   </div>
 
-                  {demoLigas.length === 0 ? (
+                  {misLigas.length === 0 ? (
                     <div className="text-secondary">
                       Aún no estás inscrito en ninguna liga.
                     </div>
                   ) : (
                     <ListGroup variant="flush">
-                      {demoLigas.map((l) => (
+                      {misLigas.map((l) => (
                         <ListGroup.Item key={l.id} className="px-0">
                           <div className="d-flex justify-content-between align-items-start gap-3">
                             <div>
-                              <div className="fw-semibold">{l.name}</div>
-                              <div className="text-secondary">
-                                {l.position
-                                  ? `Posición: ${l.position}`
-                                  : "Sin clasificación todavía"}
+                              <div className="fw-semibold">{l.nombre}</div>
+                            </div>
+
+                            <div className="d-flex flex-column align-items-end gap-2">
+                              <Badge bg={badgeVariantByStatus(l.estado)}>
+                                {l.estado}
+                              </Badge>
+
+                              <div className="d-flex gap-2">
+                                <Button
+                                  as={Link}
+                                  to={`/ligas/${l.id}`}
+                                  size="sm"
+                                  variant="outline-secondary"
+                                >
+                                  Ver liga
+                                </Button>
+
+                                <Button
+                                  size="sm"
+                                  variant="outline-danger"
+                                  disabled={l.estado !== "ABIERTA"}
+                                  onClick={() => handleCancelLiga(l.id)}
+                                >
+                                  Cancelar
+                                </Button>
                               </div>
                             </div>
-                            <Badge bg={badgeVariantByStatus(l.status)}>
-                              {l.status}
-                            </Badge>
                           </div>
                         </ListGroup.Item>
                       ))}

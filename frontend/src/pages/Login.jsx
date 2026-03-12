@@ -163,7 +163,6 @@ export default function Login({ onLogin }) {
                   type="submit"
                   className="w-100"
                   size="lg"
-                  disabled={!canSubmit}
                 >
                   Entrar
                 </Button>

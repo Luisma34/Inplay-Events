@@ -31,12 +31,8 @@ import RequireAuth from "./auth/RequireAuth";
 import { getUser, setUser, clearUser } from "./auth/auth";
 
 export default function App() {
-  const [user, setUserState] = useState(null);
+  const [user, setUserState] = useState(getUser());
 
-  // cargar sesión desde auth.js
-  useEffect(() => {
-    setUserState(getUser());
-  }, []);
 
   const handleLogin = (u) => {
     setUser(u);
@@ -53,14 +49,9 @@ export default function App() {
       <AppHeader user={user} onLogout={handleLogout} />
 
       <Routes>
-
         {/* RUTAS PUBLICAS */}
         <Route path="/" element={<Home />} />
-        <Route path="/ligas" element={<Ligas />} />
-        <Route path="/ligas/:id" element={<LigaDetalle />} />
-        <Route path="/clases" element={<Clases />} />
         <Route path="/noticias" element={<Noticias />} />
-        <Route path="/buscar-partidos" element={<BuscarPartidos />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/acceso" element={<Acceso user={user} />} />
@@ -71,6 +62,46 @@ export default function App() {
           element={
             <RequireAuth user={user}>
               <Reservas />
+            </RequireAuth>
+          }
+        />
+
+        {/* BUSCAR PARTIDOS requiere login */}
+        <Route
+          path="/buscar-partidos"
+          element={
+            <RequireAuth user={user}>
+              <BuscarPartidos />
+            </RequireAuth>
+          }
+        />
+
+        {/* CLASES requiere login */}
+        <Route
+          path="/clases"
+          element={
+            <RequireAuth user={user}>
+              <Clases />
+            </RequireAuth>
+          }
+        />
+
+        {/* LIGAS requiere login */}
+        <Route
+          path="/ligas"
+          element={
+            <RequireAuth user={user}>
+              <Ligas />
+            </RequireAuth>
+          }
+        />
+
+        {/* LIGASDETALLE requiere login */}
+        <Route
+          path="/ligas/:id"
+          element={
+            <RequireAuth user={user}>
+              <LigaDetalle />
             </RequireAuth>
           }
         />
@@ -149,7 +180,6 @@ export default function App() {
         <Route path="/aviso-legal" element={<AvisoLegal />} />
         <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
         <Route path="/politica-cookies" element={<PoliticaCookies />} />
-
       </Routes>
 
       <AppFooter />
