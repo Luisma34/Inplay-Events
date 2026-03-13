@@ -58,6 +58,16 @@ public class LigaController {
         return ResponseEntity.ok(ligaService.guardar(existente));
     }
 
+    // Obtener liga concreta
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}")
+    public ResponseEntity<Liga> obtenerPorId(@PathVariable Integer id) {
+
+        Liga liga = ligaService.obtenerPorId(id);
+
+        return ResponseEntity.ok(liga);
+    }
+
     // El metodo createLiga() maneja las solicitudes POST a la ruta "/api/ligas".
     // Recibe un objeto Liga en el cuerpo de la solicitud, lo guarda utilizando el servicio
     // y devuelve una respuesta HTTP con la liga creada.
