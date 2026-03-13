@@ -3,6 +3,7 @@ package com.inplay.service;
 import com.inplay.entity.Liga;
 import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.LigaRepository;
+import com.inplay.repository.LigaUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.List;
 public class LigaService {
 
     private final LigaRepository ligaRepository;
+    private final LigaUsuarioRepository ligaUsuarioRepository;
 
     public Liga guardar(Liga liga) {
         return ligaRepository.save(liga);
@@ -23,8 +25,14 @@ public class LigaService {
     }
 
     public Liga obtenerPorId(Integer id) {
-        return ligaRepository.findById(id)
+        Liga liga = ligaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Liga no encontrada"));
+
+        int inscritos = (int) ligaUsuarioRepository.countByLigaId(id);
+
+        liga.setInscritos(inscritos);
+
+        return liga;
     }
 
     public Liga actualizar(Integer id, Liga liga) {

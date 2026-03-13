@@ -28,6 +28,10 @@ public class Liga {
     @Column(nullable = false)
     private String nombre;
 
+    // Este campo no se almacena en la base de datos, sino que se calcula dinámicamente.
+    @Transient
+    private Integer inscritos;
+
 
     private String descripcion;
 

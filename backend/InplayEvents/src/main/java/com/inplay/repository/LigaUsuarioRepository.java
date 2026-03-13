@@ -16,4 +16,6 @@ public interface LigaUsuarioRepository extends JpaRepository<LigaUsuario, Intege
     Optional<LigaUsuario> findByLiga_idAndUsuario_Id(Integer ligaId, Integer usuarioId);
 
     List<LigaUsuario> findByUsuario_Id(Integer usuarioId);
+
+    long countByLigaId(Integer ligaId);
 }
