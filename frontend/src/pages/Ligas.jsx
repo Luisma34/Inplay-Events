@@ -75,8 +75,7 @@ export default function Ligas() {
     });
   }, [ligas, level, status]);
 
-  // inscripción V1 (localStorage)
-  // cuando conectemos backend, esto será un fetch a la API
+  // función para inscribirse en una liga
   const handleJoin = (leagueId) => {
     setMsg("");
 
@@ -102,11 +101,30 @@ export default function Ligas() {
       .catch(() => setMsg("Error al conectar con el servidor."));
   };
 
+  // función para eliminar una liga (solo admin)
+  function deleteLiga(id) {
+    fetch(`http://localhost:8080/api/ligas/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        refresh();
+        setMsg("Liga eliminada.");
+      })
+      .catch(() => setMsg("No se pudo eliminar la liga."));
+  }
+
   return (
     <Container className="py-5">
       <Row className="align-items-end g-3 mb-4">
         <Col md={7}>
           <h1 className="fw-bold mb-1">Ligas</h1>
+
+          {(user?.rol === "ADMIN" || user?.rol === "SUPERADMIN") && (
+            <Button variant="success">Crear liga</Button>
+          )}
+
           <p className="text-secondary mb-0">
             Elige tu nivel, apúntate y sigue la clasificación. ¡A competir!
           </p>
@@ -268,6 +286,14 @@ export default function Ligas() {
                       >
                         Ver clasificación
                       </Button>
+
+                      {/* Botón de eliminar (solo para admin) */}
+                      {(user?.rol === "ADMIN" || user?.rol === "SUPERADMIN") && (<Button
+                        variant="outline-danger"
+                        onClick={() => deleteLiga(l.id)}
+                      >
+                        Eliminar liga
+                      </Button>)}
                     </div>
                   </Card.Body>
                 </Card>
