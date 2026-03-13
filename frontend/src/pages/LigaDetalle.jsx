@@ -11,13 +11,17 @@ export default function LigaDetalle() {
 
   const [liga, setLiga] = useState(null);
 
+  // al cargar la página, buscamos la liga por id
   useEffect(() => {
 
-    // cargamos la liga concreta desde el service
-    const data = leagueService.getById(id);
-    setLiga(data);
+  fetch(`http://localhost:8080/api/ligas/${id}`, {
+    credentials: "include"
+  })
+    .then(res => res.json())
+    .then(data => setLiga(data))
+    .catch(() => setLiga(null));
 
-  }, [id]);
+}, [id]);
 
   // si la liga no existe
   if (!liga) {
@@ -35,15 +39,15 @@ export default function LigaDetalle() {
   return (
     <Container className="py-5">
 
-      <h1 className="fw-bold mb-2">{liga.name}</h1>
+      <h1 className="fw-bold mb-2">{liga.nombre}</h1>
 
       <div className="mb-4">
         <Badge bg="secondary" className="me-2">
-          Nivel: {liga.level}
+          Nivel: {liga.categoria}
         </Badge>
 
         <Badge bg="primary">
-          Estado: {liga.status}
+          Estado: {liga.estado}
         </Badge>
       </div>
 
@@ -60,14 +64,14 @@ export default function LigaDetalle() {
           <Card className="shadow-sm border-0">
             <Card.Body>
 
-              <p>{liga.description}</p>
+              <p>{liga.descripcion}</p>
 
               <p>
                 <b>Equipos:</b> {liga.teams}
               </p>
 
               <p>
-                <b>Inicio:</b> {liga.startDate}
+                <b>Inicio:</b> {liga.fechaInicio}
               </p>
 
               {/* 
