@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,6 +52,7 @@ public class Liga {
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
+    @CreationTimestamp
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
