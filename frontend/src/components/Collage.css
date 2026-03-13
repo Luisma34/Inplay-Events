@@ -1,0 +1,80 @@
+.home-collage{
+  padding: 5rem 0;
+  background: #f8f9fa;
+}
+
+.collage-grid{
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.collage-item{
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  aspect-ratio: 4 / 5;
+  box-shadow: 0 14px 35px rgba(0,0,0,.12);
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.collage-item img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .6s ease;
+}
+
+/* efecto suave al pasar el ratón */
+.collage-item:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(0,0,0,.18);
+}
+
+.collage-item:hover img{
+  transform: scale(1.05);
+}
+
+
+/* Logo centrado */
+.collage-logo{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,.15);
+  pointer-events: none;
+}
+
+.collage-logo img{
+  width: 70%;
+  height: auto;
+}
+
+/* Responsive */
+@media (max-width: 992px){
+  .collage-grid{ grid-template-columns: repeat(2, 1fr); }
+  .collage-logo{ width: 120px; height: 120px; }
+}
+
+@media (max-width: 576px){
+  .collage-grid{ grid-template-columns: 1fr; }
+  .collage-logo{
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 2rem auto 0 auto;
+  }
+}
