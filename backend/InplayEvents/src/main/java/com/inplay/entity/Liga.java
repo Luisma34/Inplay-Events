@@ -28,6 +28,9 @@ public class Liga {
     @Column(nullable = false)
     private String nombre;
 
+
+    private String descripcion;
+
     @Column(nullable = false)
     private String categoria;
 
