@@ -113,7 +113,7 @@ export default function MiCuenta() {
     const ok = window.confirm("¿Seguro que quieres cancelar esta reserva?");
     if (!ok) return;
 
-    fetch(`http://localhost:8080/api/reservas/${id_reserva}`, {
+    fetch(`http://localhost:8080/api/reservas/${id}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -264,14 +264,14 @@ export default function MiCuenta() {
                   ) : (
                     <ListGroup variant="flush">
                       {myReservas.map((r) => (
-                        <ListGroup.Item key={r.id_reserva} className="px-0">
+                        <ListGroup.Item key={r.id} className="px-0">
                           <div className="d-flex justify-content-between align-items-start gap-3">
                             <div>
                               <div className="fw-semibold">
                                 {r.fecha} · {r.hora}
                               </div>
                               <div className="text-secondary">
-                                {r.pista.nombre}
+                                {r.pista?.nombre || `Pista ${r.pistaId}`}
                               </div>
                             </div>
 
@@ -285,7 +285,7 @@ export default function MiCuenta() {
                                 variant="outline-danger"
                                 size="sm"
                                 disabled={r.estado === "Cancelada"}
-                                onClick={() => handleCancelReserva(r.id_reserva)}
+                                onClick={() => handleCancelReserva(r.id)}
                               >
                                 {r.estado === "Cancelada"
                                   ? "Cancelada"
