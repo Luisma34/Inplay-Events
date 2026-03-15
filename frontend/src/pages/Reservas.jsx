@@ -149,6 +149,8 @@ export default function Reservas() {
         setSelectedHour("");
         setMsg("✅ Reserva confirmada.");
 
+        window.dispatchEvent(new Event("inplay:reservas-updated"));
+
         // Recargar disponibilidad
         return fetch(
           `http://localhost:8080/api/reservas/disponibilidad?pistaId=${court}&fecha=${date}`,
