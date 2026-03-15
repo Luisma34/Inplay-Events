@@ -8,6 +8,7 @@ public record ReservaDTO(
         LocalDate fecha,
         LocalTime hora,
         String estado,
-        Integer pistaId
+        Integer pistaId,
+        String pistaNombre
 ) {
 }

@@ -24,6 +24,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM reserva r where r.fecha < CURRENT_DATE")
+    @Query("DELETE FROM Reserva r where r.fecha < CURRENT_DATE")
     void deleteReservasPasadas();
 }

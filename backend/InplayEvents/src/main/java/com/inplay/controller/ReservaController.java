@@ -69,7 +69,8 @@ public class ReservaController {
                         r.getFecha(),
                         r.getHora(),
                         r.getEstado().name(),
-                        r.getPista().getId()
+                        r.getPista().getId(),
+                        r.getPista().getNombre()
                 ))
                 .toList();
     }
