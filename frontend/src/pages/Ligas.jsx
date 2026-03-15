@@ -13,6 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
 
+//
 function statusBadgeVariant(status) {
   if (status === "Abierta") return "success";
   if (status === "Activa") return "primary";
@@ -20,6 +21,7 @@ function statusBadgeVariant(status) {
   return "dark";
 }
 
+// mapeo de estados para mostrar un texto más amigable en la UI
 const estadoLabel = {
   ABIERTA: "Abierta",
   EN_CURSO: "En curso",
@@ -31,15 +33,18 @@ export default function Ligas() {
   // obtenemos el usuario logueado para mostrar la información correcta y controlar las inscripciones.
   const user = getUser();
 
-  console.log(user);
 
+  // estado para almacenar las ligas obtenidas de la API y los filtros de nivel y estado
   const [ligas, setLigas] = useState([]);
   const [level, setLevel] = useState("Todos");
   const [status, setStatus] = useState("Todos");
 
+  // estado para controlar el modal de creación / edición de liga
   const [showModal, setShowModal] = useState(false);
+  // estado para almacenar la liga que se está editando (null si se está creando una nueva)
   const [editingLiga, setEditingLiga] = useState(null);
 
+  // estado del formulario de creación / edición de liga
   const [formLiga, setFormLiga] = useState({
     nombre: "",
     descripcion: "",
