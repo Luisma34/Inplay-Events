@@ -34,6 +34,7 @@ export default function MiCuenta() {
 
   // Cargar reservas del usuario al montar el componente
   useEffect(() => {
+   const cargarReservas = () => {
     fetch("http://localhost:8080/api/reservas/mis-reservas", {
       credentials: "include",
     })
@@ -46,10 +47,18 @@ export default function MiCuenta() {
         return res.json();
       })
       .then((data) => setMyReservas(data))
-      .catch((err) => {
-        console.error(err);
-        setMyReservas([]);
-      });
+      .catch(() => setMyReservas([]));
+   };
+
+   cargarReservas();
+
+    // Escuchar evento personalizado para recargar reservas cuando se haga una nueva reserva
+    window.addEventListener("inplay:reservas-updated", cargarReservas);
+
+    // Limpiar el listener al desmontar
+    return () => {
+      window.removeEventListener("inplay:reservas-updated", cargarReservas);
+    };
   }, []);
 
   // Cargar ligas del usuario al montar el componente (demo, en V2 se conecta al backend)
@@ -104,7 +113,7 @@ export default function MiCuenta() {
     const ok = window.confirm("¿Seguro que quieres cancelar esta reserva?");
     if (!ok) return;
 
-    fetch(`http://localhost:8080/api/reservas/${id}`, {
+    fetch(`http://localhost:8080/api/reservas/${id_reserva}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -255,7 +264,7 @@ export default function MiCuenta() {
                   ) : (
                     <ListGroup variant="flush">
                       {myReservas.map((r) => (
-                        <ListGroup.Item key={r.id} className="px-0">
+                        <ListGroup.Item key={r.id_reserva} className="px-0">
                           <div className="d-flex justify-content-between align-items-start gap-3">
                             <div>
                               <div className="fw-semibold">
@@ -276,7 +285,7 @@ export default function MiCuenta() {
                                 variant="outline-danger"
                                 size="sm"
                                 disabled={r.estado === "Cancelada"}
-                                onClick={() => handleCancelReserva(r.id)}
+                                onClick={() => handleCancelReserva(r.id_reserva)}
                               >
                                 {r.estado === "Cancelada"
                                   ? "Cancelada"
