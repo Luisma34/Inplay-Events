@@ -7,7 +7,9 @@ import com.inplay.exception.RecursoNoEncontradoException;
 import com.inplay.repository.PistaRepository;
 import com.inplay.repository.ReservaRepository;
 import com.inplay.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,6 +26,12 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final UsuarioRepository usuarioRepository;
     private final PistaRepository pistaRepository;
+
+    @Scheduled(cron = "0 0 3 * * *") // Ejecuta todos los días a las 3:00 AM
+    @Transactional
+    public void limpiarReservasAntiguas(){
+        reservaRepository.deleteReservasPasadas();
+    }
 
     public Reserva guardarReserva(Reserva reserva) {
 
