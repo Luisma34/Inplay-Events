@@ -1,6 +1,7 @@
 package com.inplay.controller;
 
 
+import com.inplay.dto.ReservaDTO;
 import com.inplay.entity.Reserva;
 import com.inplay.entity.Usuario;
 import com.inplay.repository.UsuarioRepository;
@@ -55,13 +56,22 @@ public class ReservaController {
     // usuarioRepository.findByEmail(auth.getName()) -> busca el usuario en la base de datos usando su email.
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/mis-reservas")
-    public List<Reserva> misReservas(Authentication auth) {
+    public List<ReservaDTO> misReservas(Authentication auth) {
 
         Usuario usuario = usuarioRepository
                 .findByEmail(auth.getName())
                 .orElseThrow();
 
-        return reservaService.obtenerReservasUsuario(usuario.getId());
+        return reservaService.obtenerReservasUsuario(usuario.getId())
+                .stream()
+                .map(r -> new ReservaDTO(
+                        r.getId(),
+                        r.getFecha(),
+                        r.getHora(),
+                        r.getEstado().name(),
+                        r.getPista().getId()
+                ))
+                .toList();
     }
 
     // @DeleteMapping -> maneja solicitudes DELETE para cancelar una reserva por su ID.
