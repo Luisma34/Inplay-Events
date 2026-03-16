@@ -58,12 +58,15 @@ export default function Register() {
       return;
     }
 
+    // Enviar datos al backend
     try {
       const res = await fetch("http://localhost:8080/api/auth/registro", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        // Enviar solo los campos necesarios, sin pass2 ni showPass
+        // Además, se recomienda enviar el nombre sin espacios al inicio o final
         body: JSON.stringify({
           nombre: name.trim(),
           email: email.trim(),
@@ -75,7 +78,9 @@ export default function Register() {
         throw new Error("No se pudo crear la cuenta");
       }
 
+      // Si todo va bien, mostrar mensaje de éxito
       setOk("Cuenta creada correctamente");
+      // Redirigir a login después de un breve mensaje de éxito
       setTimeout(() => navigate("/login"), 700);
     } catch (err) {
       setError(err.message);
