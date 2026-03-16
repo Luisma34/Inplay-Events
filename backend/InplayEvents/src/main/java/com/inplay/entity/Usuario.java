@@ -49,6 +49,9 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(name = "telefono")
+    private String telefono;
+
     //Campo booleano
     @Column(nullable = false, name = "activo")
     private Boolean active;
