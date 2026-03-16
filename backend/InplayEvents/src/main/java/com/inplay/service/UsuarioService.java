@@ -43,8 +43,14 @@ public class UsuarioService {
             usuario.setRol(rolUsuario);
         }
 
+        // Revisamos que el usuario no esté registrado anteriormente.
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+            throw new RuntimeException("El email ya está registrado");
+        }
+
         return usuarioRepository.save(usuario);
     }
+
 
     //Obtener todos los usuarios.
     public List<Usuario> obtenerTodos() {
