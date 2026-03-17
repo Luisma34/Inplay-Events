@@ -36,7 +36,7 @@ export default function Register() {
     );
   }, [name, isValidEmail, pass, pass2]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setOk("");
@@ -58,30 +58,33 @@ export default function Register() {
       return;
     }
 
-    // ✅ DEMO: guardamos usuarios en localStorage (luego será backend)
-    const KEY = "inplay_users_v1";
-    const raw = localStorage.getItem(KEY);
-    const users = raw ? JSON.parse(raw) : [];
+    // Enviar datos al backend
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/registro", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Enviar solo los campos necesarios, sin pass2 ni showPass
+        // Además, se recomienda enviar el nombre sin espacios al inicio o final
+        body: JSON.stringify({
+          nombre: name.trim(),
+          email: email.trim(),
+          password: pass,
+        }),
+      });
 
-    const exists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (exists) {
-      setError("Ya existe una cuenta con ese email.");
-      return;
+      if (!res.ok) {
+        throw new Error("No se pudo crear la cuenta");
+      }
+
+      // Si todo va bien, mostrar mensaje de éxito
+      setOk("Cuenta creada correctamente");
+      // Redirigir a login después de un breve mensaje de éxito
+      setTimeout(() => navigate("/login"), 700);
+    } catch (err) {
+      setError(err.message);
     }
-
-    const newUser = {
-      id: crypto?.randomUUID?.() || String(Date.now()),
-      name: name.trim(),
-      email: email.trim(),
-      role: "USER",
-      createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-    localStorage.setItem(KEY, JSON.stringify(users));
-
-    setOk("Cuenta creada. Ya puedes iniciar sesión.");
-    setTimeout(() => navigate("/login"), 700);
   };
 
   return (
@@ -162,7 +165,12 @@ export default function Register() {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                <Button type="submit" className="w-100" size="lg" disabled={!canSubmit}>
+                <Button
+                  type="submit"
+                  className="w-100"
+                  size="lg"
+                  disabled={!canSubmit}
+                >
                   Crear cuenta
                 </Button>
 
@@ -176,7 +184,10 @@ export default function Register() {
             </Card.Body>
           </Card>
 
-          <div className="text-center mt-3 text-secondary" style={{ fontSize: ".95rem" }}>
+          <div
+            className="text-center mt-3 text-secondary"
+            style={{ fontSize: ".95rem" }}
+          >
             Al registrarte aceptas nuestras políticas de privacidad y cookies.
           </div>
         </Col>

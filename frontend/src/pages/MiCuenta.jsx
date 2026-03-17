@@ -52,6 +52,7 @@ export default function MiCuenta() {
 
   // Cargamos las reservas del usuario desde backend al montar la página
   useEffect(() => {
+   const cargarReservas = () => {
     fetch("http://localhost:8080/api/reservas/mis-reservas", {
       credentials: "include",
     })
@@ -62,10 +63,18 @@ export default function MiCuenta() {
         return res.json();
       })
       .then((data) => setMyReservas(data))
-      .catch((err) => {
-        console.error(err);
-        setMyReservas([]);
-      });
+      .catch(() => setMyReservas([]));
+   };
+
+   cargarReservas();
+
+    // Escuchar evento personalizado para recargar reservas cuando se haga una nueva reserva
+    window.addEventListener("inplay:reservas-updated", cargarReservas);
+
+    // Limpiar el listener al desmontar
+    return () => {
+      window.removeEventListener("inplay:reservas-updated", cargarReservas);
+    };
   }, []);
 
   // Cargamos las ligas del usuario desde backend al montar la página
@@ -307,7 +316,7 @@ export default function MiCuenta() {
                                 {r.fecha} · {r.hora}
                               </div>
                               <div className="text-secondary">
-                                {r.pistaNombre || r.pista?.nombre}
+                                {r.pistaNombre || r.pista?.nombre || `Pista ${r.pistaId}`}
                               </div>
                             </div>
 

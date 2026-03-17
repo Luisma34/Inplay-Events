@@ -1,0 +1,63 @@
+package com.inplay.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "liga", uniqueConstraints =
+        @UniqueConstraint(columnNames = {"nombre", "categoria", "division"}))
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Liga {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_liga")
+    private Integer id;
+
+    @Column(nullable = false)
+    private String nombre;
+
+    // Este campo no se almacena en la base de datos, sino que se calcula dinámicamente.
+    @Transient
+    private Integer inscritos;
+
+
+    private String descripcion;
+
+    @Column(nullable = false)
+    private String categoria;
+
+    @Column(nullable = false)
+    private String division;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Estado estado;
+
+    @Column(name = "fecha_inicio")
+    private LocalDate fechaInicio;
+
+    @Column(name = "fecha_fin")
+    private LocalDate fechaFin;
+
+    @CreationTimestamp
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    //Estados posibles de la liga
+    public enum Estado {
+        ABIERTA, EN_CURSO, FINALIZADA, CANCELADA
+    }
+}
