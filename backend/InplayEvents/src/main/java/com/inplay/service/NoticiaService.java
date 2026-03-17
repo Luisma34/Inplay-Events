@@ -6,6 +6,7 @@ import com.inplay.repository.NoticiaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,6 +16,17 @@ public class NoticiaService {
     private final NoticiaRepository noticiaRepository;
 
     public Noticia guardar(Noticia noticia) {
+
+        // Si no viene fecha, la ponemos al crear
+        if (noticia.getFechaPublicacion() == null) {
+            noticia.setFechaPublicacion(LocalDateTime.now());
+        }
+
+        // Si no viene visible, por defecto la dejamos visible
+        if (noticia.getVisible() == null) {
+            noticia.setVisible(true);
+        }
+
         return noticiaRepository.save(noticia);
     }
 
@@ -45,9 +57,9 @@ public class NoticiaService {
         return noticiaRepository.save(existente);
     }
 
-
+    // Solo noticias visibles para la parte pública
     public List<Noticia> obtenerTodas() {
-        return noticiaRepository.findAll();
+        return noticiaRepository.findByVisibleTrue();
     }
 
     public void eliminar(Integer id) {
