@@ -1,38 +1,52 @@
-package com.inplay.service;
+package com.inplay.repository;
 
 import com.inplay.entity.Sesion;
-import com.inplay.repository.SesionRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
-@Service
-// Usamos @RequiredArgsConstructor para inyectar el repositorio a través del constructor.
-@RequiredArgsConstructor
-public class SesionService {
+@Repository
+public interface SesionRepository extends JpaRepository<Sesion, Integer> {
 
-    private final SesionRepository sesionRepository;
+    // Devuelve todas las sesiones de un usuario
+    // Lo usaremos para "mis clases"
+    List<Sesion> findByUsuario_Id(Integer usuarioId);
 
-    // Limpieza de sesiones antiguas
-    // El metodo se ejecutará automáticamente todos los días a las 3:30 AM, según la expresión cron.
-    // Borra sesiones que sean anteriores a 30 días y que no estén activas.
-    @Scheduled(cron = "0 30 3 * * ?")
-    public void limpiarSesionesAntiguas() {
-        LocalDate limite = LocalDate.now().minusDays(30);
-        sesionRepository.borrarSesionesAntiguas(limite);
-    }
+    // Devuelve sesiones de una fecha concreta
+    // Esto sirve para panel admin o control de sesiones
+    List<Sesion> findByFecha(LocalDate fecha);
 
-    // Crear sesión
-    public Sesion guardarSesion(Sesion sesion) {
-        return sesionRepository.save(sesion);
-    }
+    // Devuelve sesiones de una pista en una fecha
+    // Nos sirve para ver qué hay reservado en esa pista
+    List<Sesion> findByPista_IdAndFecha(Integer pistaId, LocalDate fecha);
 
-    // Obtener todas
-    public List<Sesion> obtenerSesiones() {
-        return sesionRepository.findAll();
-    }
+    // Devuelve solo sesiones activas de un usuario
+    // Esto es lo que realmente verá el usuario en "mis clases"
+    List<Sesion> findByUsuario_IdAndActivaTrue(Integer usuarioId);
+
+    // Devuelve sesiones activas de una pista en una fecha
+    // Esto lo usamos para calcular disponibilidad
+    List<Sesion> findByPista_IdAndFechaAndActivaTrue(Integer pistaId, LocalDate fecha);
+
+    // Comprueba si ya existe una sesión activa en esa pista, fecha y hora
+    // Esto es clave para evitar que dos usuarios reserven el mismo hueco
+    boolean existsByPista_IdAndFechaAndHoraInicioAndActivaTrue(
+            Integer pistaId,
+            LocalDate fecha,
+            LocalTime horaInicio
+    );
+
+    // Metodo para eliminar sesiones antiguas que ya no estén activas
+    // Esto lo usamos en el scheduled del service para limpiar la BD
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Sesion sesion WHERE sesion.fecha < :limite AND sesion.activa = false")
+    void borrarSesionesAntiguas(@Param("limite") LocalDate limite);
 }
-
