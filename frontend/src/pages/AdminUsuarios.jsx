@@ -1,6 +1,16 @@
 // frontend/src/pages/AdminUsuarios.jsx
 import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Table, Badge, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Table,
+  Badge,
+  Alert,
+} from "react-bootstrap";
 import { usersService } from "../services/usersService";
 import { getUser } from "../auth/auth";
 
@@ -21,14 +31,17 @@ export default function AdminUsuarios() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("USER");
 
+  const refresh = async () => {
+    try {
+      const data = await usersService.getAll();
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
-    const refresh = () => setItems(usersService.getAll());
     refresh();
-
-    const onInternal = () => refresh();
-    window.addEventListener("inplay:users-updated", onInternal);
-
-    return () => window.removeEventListener("inplay:users-updated", onInternal);
   }, []);
 
   const stats = useMemo(() => {
@@ -39,10 +52,17 @@ export default function AdminUsuarios() {
     return { total, admins, profes, activos };
   }, [items]);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     setMsg("");
+
+    if (!name || !email) {
+      setMsg("Nombre y email obligatorios");
+      return;
+    }
+
     try {
-      usersService.create({ name, email, role, active: true });
+      await usersService.create({ name, email, role });
+      await refresh();
       setName("");
       setEmail("");
       setRole("USER");
@@ -52,30 +72,34 @@ export default function AdminUsuarios() {
     }
   };
 
-  const handleToggleActive = (u) => {
+  const handleToggleActive = async (u) => {
     setMsg("");
     try {
-      usersService.setActive(u.id, !u.active);
+      await usersService.setActive(u.id, !u.active);
+      await refresh();
       setMsg(u.active ? "✅ Usuario desactivado." : "✅ Usuario activado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error"}`);
     }
   };
 
-  const handleChangeRole = (u, nextRole) => {
+  const handleChangeRole = async (u, nextRole) => {
     setMsg("");
     try {
-      usersService.setRole(u.id, nextRole);
+      await usersService.setRole(u.id, nextRole);
+      await refresh();
       setMsg("✅ Rol actualizado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error"}`);
     }
   };
 
-  const handleDelete = (u) => {
+  const handleDelete = async (u) => {
     setMsg("");
     // evitar liadas típicas
-    if (currentUser?.email && String(u.email).toLowerCase() === String(currentUser.email).toLowerCase()) {
+    if (
+      currentUser?.email?.toLowerCase() === u.email.toLowerCase()
+    ) {
       setMsg("⚠️ No puedes eliminarte a ti mismo.");
       return;
     }
@@ -83,7 +107,8 @@ export default function AdminUsuarios() {
     if (!ok) return;
 
     try {
-      usersService.remove(u.id);
+      await usersService.remove(u.id);
+      await refresh();
       setMsg("✅ Usuario eliminado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error"}`);
@@ -96,7 +121,7 @@ export default function AdminUsuarios() {
         <Col md={7}>
           <h1 className="fw-bold mb-1">Admin · Usuarios</h1>
           <p className="text-secondary mb-0">
-            Altas/bajas, roles y activación. (V1: localStorage)
+            Altas/bajas, roles y activación.
           </p>
         </Col>
 
@@ -131,22 +156,34 @@ export default function AdminUsuarios() {
           <Row className="g-3">
             <Col md={4}>
               <Form.Label className="mb-1">Nombre</Form.Label>
-              <Form.Control value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" />
+              <Form.Control
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nombre"
+              />
             </Col>
             <Col md={4}>
               <Form.Label className="mb-1">Email</Form.Label>
-              <Form.Control value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@ejemplo.com" />
+              <Form.Control
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="correo@ejemplo.com"
+              />
             </Col>
             <Col md={2}>
               <Form.Label className="mb-1">Rol</Form.Label>
-              <Form.Select value={role} onChange={(e) => setRole(e.target.value)}>
+              <Form.Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
                 <option value="USER">USER</option>
                 <option value="PROFESOR">PROFESOR</option>
                 <option value="ADMIN">ADMIN</option>
               </Form.Select>
             </Col>
             <Col md={2} className="d-flex align-items-end">
-              <Button className="w-100" onClick={handleCreate}>
+            {/* El botón de crear se habilita al menos con nombre y email, el rol por defecto es USER */}
+              <Button className="w-100" onClick={handleCreate} disabled={!name || !email}>
                 Crear
               </Button>
             </Col>
@@ -207,7 +244,9 @@ export default function AdminUsuarios() {
                       <div className="d-inline-flex gap-2">
                         <Button
                           size="sm"
-                          variant={u.active ? "outline-secondary" : "outline-success"}
+                          variant={
+                            u.active ? "outline-secondary" : "outline-success"
+                          }
                           onClick={() => handleToggleActive(u)}
                         >
                           {u.active ? "Desactivar" : "Activar"}

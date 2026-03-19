@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { setUser } from "../auth/auth";
+import { setUser, clearUser } from "../auth/auth";
+
 
 export default function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -74,14 +75,19 @@ export default function Login({ onLogin }) {
         name: userData.nombre,
         email: userData.email,
         role: userData.rol?.rol?.replace("ROLE_", ""), // viene como ROLE_ADMIN, ROLE_USUARIO...
+        active: userData.active, // Añadir
       };
 
       setUser(user); // guarda en localStorage
       onLogin?.(user); // actualizado el estado de React 
 
-      navigate("/");
+      const from = location.state?.from || "/"
+
+      navigate(from, { replace: true }); // redirige a la página original o home
+
     } catch (err) {
-      setError(err.message);
+      clearUser(); //Limpia la sesión local si el login falla por alguna razón.
+      setError(err.message || "Error al iniciar sesión");
     }
   };
 
