@@ -54,6 +54,16 @@ public class UsuarioService {
 
     //Obtener todos los usuarios.
     public List<Usuario> obtenerTodos() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String rolActual = auth.getAuthorities().iterator().next().getAuthority();
+
+        // Si es ADMIN → NO ver SUPERADMIN
+        if (rolActual.equals("ROLE_ADMIN")) {
+            return usuarioRepository.findByActiveTrueAndRol_RolNot(Rol.RolUsuario.ROLE_SUPERADMIN);
+        }
+
+        // SUPERADMIN ve todo
         return usuarioRepository.findByActiveTrue();
     }
 
