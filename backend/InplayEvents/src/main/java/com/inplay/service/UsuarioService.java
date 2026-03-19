@@ -71,6 +71,15 @@ public class UsuarioService {
         // Primero buscamos el usuario existente
         Usuario existente = obtenerPorId(id);
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String rolActual = auth.getAuthorities().iterator().next().getAuthority();
+
+         // Si se intenta actualizar un SuperAdmin y no es SuperAdmin
+        if (existente.getRol().getRol() == Rol.RolUsuario.ROLE_SUPERADMIN
+                && !rolActual.equals("ROLE_SUPERADMIN")) {
+            throw new RuntimeException("No tienes permisos para actualizar este rol");
+        }
+
         // Si se envía nueva contraseña, la volvemos a encriptar
         if (nuevo.getPassword() != null)
             existente.setPassword(passwordEncoder.encode(nuevo.getPassword()));
