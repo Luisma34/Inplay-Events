@@ -15,8 +15,9 @@ import { usersService } from "../services/usersService";
 import { getUser } from "../auth/auth";
 
 function roleBadge(role) {
-  if (role === "ADMIN") return "danger";
-  if (role === "PROFESOR") return "warning";
+  if (role === "ROLE_SUPERADMIN") return "dark";
+  if (role === "ROLE_ADMIN") return "danger";
+  if (role === "ROLE_PROFESOR") return "warning";
   return "secondary";
 }
 
@@ -29,7 +30,7 @@ export default function AdminUsuarios() {
   // formulario alta
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("USER");
+  const [role, setRole] = useState("ROLE_USUARIO");
 
   const refresh = async () => {
     try {
@@ -46,8 +47,8 @@ export default function AdminUsuarios() {
 
   const stats = useMemo(() => {
     const total = items.length;
-    const admins = items.filter((u) => u.role === "ADMIN").length;
-    const profes = items.filter((u) => u.role === "PROFESOR").length;
+    const admins = items.filter((u) => u.rol?.rol === "ROLE_ADMIN").length;
+    const profes = items.filter((u) => u.rol?.rol === "ROLE_PROFESOR").length;
     const activos = items.filter((u) => u.active).length;
     return { total, admins, profes, activos };
   }, [items]);
@@ -65,8 +66,8 @@ export default function AdminUsuarios() {
       await refresh();
       setName("");
       setEmail("");
-      setRole("USER");
-      setMsg("✅ Usuario creado.");
+      setRole("ROLE_USUARIO");
+      setMsg("Usuario creado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error creando usuario"}`);
     }
@@ -74,10 +75,15 @@ export default function AdminUsuarios() {
 
   const handleToggleActive = async (u) => {
     setMsg("");
+
+    if (u.rol?.rol === "ROLE_SUPERADMIN") {
+      setMsg(" No puedes desactivar el SUPERADMIN.");
+      return;
+    }
     try {
       await usersService.setActive(u.id, !u.active);
       await refresh();
-      setMsg(u.active ? "✅ Usuario desactivado." : "✅ Usuario activado.");
+      setMsg(u.active ? "Usuario desactivado." : " Usuario activado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error"}`);
     }
@@ -85,22 +91,32 @@ export default function AdminUsuarios() {
 
   const handleChangeRole = async (u, nextRole) => {
     setMsg("");
+
+    if (u.rol?.rol === "ROLE_SUPERADMIN") {
+      setMsg(" No puedes modificar el SUPERADMIN.");
+      return;
+    }
+
     try {
       await usersService.setRole(u.id, nextRole);
       await refresh();
-      setMsg("✅ Rol actualizado.");
+      setMsg(" Rol actualizado.");
     } catch (e) {
-      setMsg(`⚠️ ${e.message || "Error"}`);
+      setMsg(` ${e.message || "Error"}`);
     }
   };
 
   const handleDelete = async (u) => {
     setMsg("");
+
+    // evitar eliminar al SUPERADMIN
+    if (u.rol?.rol === "ROLE_SUPERADMIN") {
+      setMsg(" No puedes eliminar el SUPERADMIN.");
+      return;
+    }
     // evitar liadas típicas
-    if (
-      currentUser?.email?.toLowerCase() === u.email.toLowerCase()
-    ) {
-      setMsg("⚠️ No puedes eliminarte a ti mismo.");
+    if (currentUser?.email?.toLowerCase() === u.email.toLowerCase()) {
+      setMsg(" No puedes eliminarte a ti mismo.");
       return;
     }
     const ok = window.confirm(`¿Eliminar a ${u.email}?`);
@@ -109,9 +125,9 @@ export default function AdminUsuarios() {
     try {
       await usersService.remove(u.id);
       await refresh();
-      setMsg("✅ Usuario eliminado.");
+      setMsg(" Usuario eliminado.");
     } catch (e) {
-      setMsg(`⚠️ ${e.message || "Error"}`);
+      setMsg(` ${e.message || "Error"}`);
     }
   };
 
@@ -182,8 +198,12 @@ export default function AdminUsuarios() {
               </Form.Select>
             </Col>
             <Col md={2} className="d-flex align-items-end">
-            {/* El botón de crear se habilita al menos con nombre y email, el rol por defecto es USER */}
-              <Button className="w-100" onClick={handleCreate} disabled={!name || !email}>
+              {/* El botón de crear se habilita al menos con nombre y email, el rol por defecto es USER */}
+              <Button
+                className="w-100"
+                onClick={handleCreate}
+                disabled={!name || !email}
+              >
                 Crear
               </Button>
             </Col>
@@ -215,53 +235,57 @@ export default function AdminUsuarios() {
                   </td>
                 </tr>
               ) : (
-                items.map((u) => (
-                  <tr key={u.id}>
-                    <td className="text-secondary">{u.id}</td>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <Badge bg={roleBadge(u.role)}>{u.role}</Badge>
-                        <Form.Select
-                          size="sm"
-                          value={u.role}
-                          onChange={(e) => handleChangeRole(u, e.target.value)}
-                          style={{ maxWidth: 140 }}
-                        >
-                          <option value="USER">USER</option>
-                          <option value="PROFESOR">PROFESOR</option>
-                          <option value="ADMIN">ADMIN</option>
-                        </Form.Select>
-                      </div>
-                    </td>
-                    <td>
-                      <Badge bg={u.active ? "success" : "secondary"}>
-                        {u.active ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </td>
-                    <td className="text-end">
-                      <div className="d-inline-flex gap-2">
-                        <Button
-                          size="sm"
-                          variant={
-                            u.active ? "outline-secondary" : "outline-success"
-                          }
-                          onClick={() => handleToggleActive(u)}
-                        >
-                          {u.active ? "Desactivar" : "Activar"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          onClick={() => handleDelete(u)}
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                items
+                  .filter((u) => u.rol?.rol !== "ROLE_SUPERADMIN")
+                  .map((u) => (
+                    <tr key={u.id}>
+                      <td className="text-secondary">{u.id}</td>
+                      <td>{u.name}</td>
+                      <td>{u.email}</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <Badge bg={roleBadge(u.rol?.rol)}>{u.rol?.rol}</Badge>
+                          <Form.Select
+                            size="sm"
+                            value={u.rol?.rol}
+                            onChange={(e) =>
+                              handleChangeRole(u, e.target.value)
+                            }
+                            style={{ maxWidth: 140 }}
+                          >
+                            <option value="ROLE_USUARIO">USER</option>
+                            <option value="ROLE_PROFESOR">PROFESOR</option>
+                            <option value="ROLE_ADMIN">ADMIN</option>
+                          </Form.Select>
+                        </div>
+                      </td>
+                      <td>
+                        <Badge bg={u.active ? "success" : "secondary"}>
+                          {u.active ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </td>
+                      <td className="text-end">
+                        <div className="d-inline-flex gap-2">
+                          <Button
+                            size="sm"
+                            variant={
+                              u.active ? "outline-secondary" : "outline-success"
+                            }
+                            onClick={() => handleToggleActive(u)}
+                          >
+                            {u.active ? "Desactivar" : "Activar"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => handleDelete(u)}
+                          >
+                            Eliminar
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
               )}
             </tbody>
           </Table>

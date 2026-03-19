@@ -81,10 +81,11 @@ export default function Login({ onLogin }) {
       setUser(user); // guarda en localStorage
       onLogin?.(user); // actualizado el estado de React 
 
-      const from = location.state?.from || "/"
-
-      navigate(from, { replace: true }); // redirige a la página original o home
-
+      const from = location.state?.from;
+      if (user.role === "ADMIN" || user.role === "SUPERADMIN") {
+        navigate("/admin", { replace: true });
+      } else
+        navigate(from || "/mi-cuenta", { replace: true }); // redirige a la página original o home
     } catch (err) {
       clearUser(); //Limpia la sesión local si el login falla por alguna razón.
       setError(err.message || "Error al iniciar sesión");

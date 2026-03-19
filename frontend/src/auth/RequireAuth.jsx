@@ -18,7 +18,11 @@ export default function RequireAuth({ user, allowedRoles, children }) {
     );
 
   // Logueado pero sin rol permitido -> home
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (
+    allowedRoles &&
+    !allowedRoles.includes(user.role) &&
+    user.role !== "SUPERADMIN"
+  ) {
     return <Navigate to="/" replace />;
   }
 
