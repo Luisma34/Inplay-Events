@@ -60,12 +60,11 @@ export default function Noticias() {
 
           // En backend no tenemos excerpt, así que generamos un resumen corto
           // a partir del contenido si existe.
-          const excerpt =
-            n.contenido?.trim()
-              ? n.contenido.trim().length > 180
-                ? n.contenido.trim().slice(0, 180) + "..."
-                : n.contenido.trim()
-              : "";
+          const excerpt = n.contenido?.trim()
+            ? n.contenido.trim().length > 180
+              ? n.contenido.trim().slice(0, 180) + "..."
+              : n.contenido.trim()
+            : "";
 
           return (
             <Card key={n.id} className="shadow-sm border-0 mb-3">

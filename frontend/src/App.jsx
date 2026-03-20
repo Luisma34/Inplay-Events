@@ -19,8 +19,6 @@ import MiCuenta from "./pages/MiCuenta";
 import Admin from "./pages/Admin";
 import Profesor from "./pages/Profesor";
 import AdminNoticias from "./pages/AdminNoticias";
-import AdminLigas from "./pages/AdminLigas";
-import AdminReservas from "./pages/AdminReservas";
 import AdminUsuarios from "./pages/AdminUsuarios";
 
 import AvisoLegal from "./pages/AvisoLegal";
@@ -32,7 +30,6 @@ import { getUser, setUser, clearUser } from "./auth/auth";
 
 export default function App() {
   const [user, setUserState] = useState(getUser());
-
 
   const handleLogin = (u) => {
     setUser(u);
@@ -142,26 +139,6 @@ export default function App() {
           element={
             <RequireAuth user={user} allowedRoles={["ADMIN"]}>
               <AdminNoticias />
-            </RequireAuth>
-          }
-        />
-
-        {/* ADMIN LIGAS */}
-        <Route
-          path="/admin/ligas"
-          element={
-            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-              <AdminLigas />
-            </RequireAuth>
-          }
-        />
-
-        {/* ADMIN RESERVAS */}
-        <Route
-          path="/admin/reservas"
-          element={
-            <RequireAuth user={user} allowedRoles={["ADMIN"]}>
-              <AdminReservas />
             </RequireAuth>
           }
         />

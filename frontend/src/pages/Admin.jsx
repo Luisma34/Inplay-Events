@@ -21,16 +21,6 @@ export default function Admin() {
             to: "/admin/noticias",
           },
           {
-            title: "Ligas",
-            text: "Crear ligas, categorías y temporadas.",
-            to: "/admin/ligas",
-          },
-          {
-            title: "Reservas",
-            text: "Ver/cancelar reservas y bloquear pistas.",
-            to: "/admin/reservas",
-          },
-          {
             title: "Usuarios",
             text: "Roles, altas/bajas y permisos.",
             to: "/admin/usuarios",
@@ -41,15 +31,15 @@ export default function Admin() {
               <Card.Body className="d-flex flex-column">
                 <div className="fw-bold mb-2">{x.title}</div>
                 <div className="text-secondary mb-3">{x.text}</div>
-               {x.to ? (
-  <Button as={Link} to={x.to} className="mt-auto">
-    Gestionar
-  </Button>
-) : (
-  <Button className="mt-auto" disabled>
-    Gestionar (próximamente)
-  </Button>
-)}
+                {x.to ? (
+                  <Button as={Link} to={x.to} className="mt-auto">
+                    Gestionar
+                  </Button>
+                ) : (
+                  <Button className="mt-auto" disabled>
+                    Gestionar (próximamente)
+                  </Button>
+                )}
               </Card.Body>
             </Card>
           </Col>
@@ -58,4 +48,3 @@ export default function Admin() {
     </Container>
   );
 }
-

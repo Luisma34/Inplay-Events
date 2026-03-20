@@ -1,101 +1,95 @@
-const API_URL = "http://localhost:8080/api";
+
+// Servicio encargado de gestionar las reservas de clases.
+// En esta V1 trabaja con localStorage.
+// En V2 se sustituirá por llamadas a la API del backend.
+
+const STORAGE_KEY = "inplay_clases_v1";
+
+// Carga las reservas desde localStorage
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+// Guarda la lista completa en localStorage
+// Además dispara un evento para que otras páginas se actualicen.
+function save(items) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event("inplay:clases-updated"));
+}
+
+// Generador de id incremental simple
+function getNextId(items) {
+  if (items.length === 0) return 1;
+  return Math.max(...items.map((x) => x.id)) + 1;
+}
 
 export const clasesService = {
-  // Catálogo de clases
-  async getClases() {
-    const res = await fetch(`${API_URL}/clases`, {
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      throw new Error("Error cargando clases");
-    }
-
-    return res.json();
+  // Devuelve todas las reservas ordenadas por fecha de creación
+  getAll() {
+    return load().sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
   },
 
-  // Pistas disponibles
-  async getPistas() {
-    const res = await fetch(`${API_URL}/pistas`, {
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      throw new Error("Error cargando pistas");
-    }
-
-    return res.json();
+  // Devuelve solo reservas activas (no canceladas)
+  // Se usa para comprobar disponibilidad
+  getActive() {
+    return load().filter((r) => r.status !== "Cancelada");
   },
 
-  // Horas libres para una pista y una fecha
-  async getDisponibilidad({ pistaId, fecha }) {
-    const params = new URLSearchParams({
-      pistaId: String(pistaId),
-      fecha,
-    });
-
-    const res = await fetch(`${API_URL}/sesiones/disponibilidad?${params}`, {
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      throw new Error("Error cargando disponibilidad");
-    }
-
-    return res.json();
+  // Comprueba si una franja ya está ocupada
+  // En clase individual solo puede haber una reserva por hora
+  isTaken({ date, time }) {
+    const active = this.getActive();
+    return active.some((r) => r.date === date && r.time === time);
   },
 
-  // Crear sesión = reservar clase
-  async createSesion({ claseId, pistaId, usuarioId, fecha, horaInicio, horaFin }) {
-    const res = await fetch(`${API_URL}/sesiones`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        clase: { id: claseId },
-        pista: { id: pistaId },
-        usuario: { id: usuarioId },
-        fecha,
-        horaInicio,
-        horaFin,
-        activa: true,
-      }),
-    });
+  // Crea una nueva reserva
+  create({ userEmail, userName, date, time, note }) {
+    const items = load();
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || "Error creando sesión");
-    }
+    const newItem = {
+      id: getNextId(items),
+      userEmail,
+      userName,
+      date,
+      time,
+      note: note?.trim() || "",
+      status: "Confirmada",
+      createdAt: new Date().toISOString(),
+    };
 
-    return res.json();
+    items.unshift(newItem);
+    save(items);
+
+    return newItem;
   },
 
-  // Mis clases
-  async getMisSesiones() {
-    const res = await fetch(`${API_URL}/sesiones/mis-sesiones`, {
-      credentials: "include",
-    });
+  // Cancela una reserva (no la elimina, solo cambia estado)
+  cancel(id) {
+    const items = load();
+    const idx = items.findIndex((r) => r.id === id);
+    if (idx === -1) return null;
 
-    if (!res.ok) {
-      throw new Error("Error cargando mis clases");
-    }
+    items[idx] = { ...items[idx], status: "Cancelada" };
+    save(items);
 
-    return res.json();
+    return items[idx];
   },
 
-  // Cancelar clase
-  async cancelSesion(id) {
-    const res = await fetch(`${API_URL}/sesiones/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+  // Elimina definitivamente una reserva
+  remove(id) {
+    const items = load();
+    const next = items.filter((r) => r.id !== id);
+    save(next);
 
-    if (!res.ok) {
-      throw new Error("Error cancelando clase");
-    }
-
-    return true;
+    return next.length !== items.length;
   },
 };

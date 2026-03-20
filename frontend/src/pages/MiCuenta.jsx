@@ -7,20 +7,18 @@ import {
   Button,
   Badge,
   ListGroup,
-  Form
+  Form,
+  Modal
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
 
-// Devuelve un color según el estado para mostrarlo visualmente
 function badgeVariantByStatus(status) {
   if (status === "Confirmada") return "success";
   if (status === "Pendiente") return "warning";
   if (status === "Cancelada") return "secondary";
   if (status === "Activa") return "primary";
-  if (status === "ACTIVA") return "primary";
   if (status === "Abierta") return "success";
-  if (status === "ABIERTA") return "success";
   if (status === "Próximamente") return "secondary";
   return "dark";
 }
@@ -28,35 +26,21 @@ function badgeVariantByStatus(status) {
 export default function MiCuenta() {
   const user = getUser();
 
-  // Guardamos las ligas del usuario autenticado
+  // Datos para cargar ligas desde el backend en V2. Por ahora es demo.
   const [misLigas, setMisLigas] = useState([]);
 
-  // Guardamos las reservas de pista del usuario autenticado
+  // Datos para cargar reservas desde el backend en V2. Por ahora es demo.
   const [myReservas, setMyReservas] = useState([]);
 
-  // Guardamos las clases reservadas del usuario autenticado
-  const [misClases, setMisClases] = useState([]);
-
-  // Estado local del formulario de perfil
-  // De momento esto sigue sin guardarse en backend
-  const [profile, setProfile] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: "",
-  });
-
-  // Validación mínima del formulario de perfil
-  const canSaveProfile = useMemo(() => {
-    return profile.name.trim().length >= 2 && profile.email.includes("@");
-  }, [profile]);
-
-  // Cargamos las reservas del usuario desde backend al montar la página
+  // Cargar reservas del usuario al montar el componente
   useEffect(() => {
    const cargarReservas = () => {
     fetch("http://localhost:8080/api/reservas/mis-reservas", {
       credentials: "include",
     })
+      // El backend devuelve las horas como "HH:mm" o como objetos {hour: H, minute: M}, así que normalizamos ambos casos
       .then((res) => {
+        // Si no es 200, probablemente no esté autenticado o haya un error, así que lanzamos para ir al catch
         if (!res.ok) {
           throw new Error("Error cargando reservas");
         }
@@ -77,7 +61,7 @@ export default function MiCuenta() {
     };
   }, []);
 
-  // Cargamos las ligas del usuario desde backend al montar la página
+  // Cargar ligas del usuario al montar el componente (demo, en V2 se conecta al backend)
   useEffect(() => {
     fetch("http://localhost:8080/api/ligas/mis-ligas", {
       credentials: "include",
@@ -87,37 +71,28 @@ export default function MiCuenta() {
         return res.json();
       })
       .then((data) => setMisLigas(data))
-      .catch((err) => {
-        console.error(err);
-        setMisLigas([]);
-      });
+      .catch(() => setMisLigas([]));
   }, []);
 
-  // Cargamos las clases del usuario desde backend al montar la página
-  useEffect(() => {
-    fetch("http://localhost:8080/api/sesiones/mis-sesiones", {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Error cargando clases");
-        return res.json();
-      })
-      .then((data) => setMisClases(data))
-      .catch((err) => {
-        console.error(err);
-        setMisClases([]);
-      });
-  }, []);
+  // Perfil editable demo
+  const [profile, setProfile] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: "",
+  });
 
-  // De momento el perfil sigue sin guardarse en backend
+  const canSaveProfile = useMemo(() => {
+    return profile.name.trim().length >= 2 && profile.email.includes("@");
+  }, [profile]);
+
   const handleSaveProfile = () => {
-    alert("La edición del perfil se conectará al backend más adelante.");
+    alert("Guardado (demo). En V2 se conecta al backend.");
   };
 
-  // Cancela la inscripción del usuario en una liga
+  // función para cancelar una reserva (solo si no está ya cancelada)
   const handleCancelLiga = (ligaId) => {
     const ok = window.confirm(
-      "¿Seguro que quieres cancelar tu inscripción en esta liga?"
+      "¿Seguro que quieres cancelar tu inscripción en esta liga?",
     );
     if (!ok) return;
 
@@ -128,13 +103,12 @@ export default function MiCuenta() {
       .then((res) => {
         if (!res.ok) throw new Error("Error cancelando liga");
 
-        // Si backend responde bien, quitamos la liga del estado local
         setMisLigas((prev) => prev.filter((l) => l.id !== ligaId));
       })
       .catch(() => alert("Error al cancelar la liga"));
   };
 
-  // Cancela una reserva de pista
+  // función para cancelar una reserva (solo si no está ya cancelada)
   const handleCancelReserva = (id) => {
     const ok = window.confirm("¿Seguro que quieres cancelar esta reserva?");
     if (!ok) return;
@@ -144,40 +118,21 @@ export default function MiCuenta() {
       credentials: "include",
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Error cancelando reserva");
+        if (!res.ok) throw new Error("Error cancelando");
 
-        // Si backend responde bien, quitamos la reserva del estado local
         setMyReservas((prev) => prev.filter((r) => r.id !== id));
       })
       .catch(() => alert("Error al cancelar la reserva"));
   };
 
-  // Cancela una clase reservada
-  const handleCancelClase = (id) => {
-    const ok = window.confirm("¿Seguro que quieres cancelar esta clase?");
-    if (!ok) return;
-
-    fetch(`http://localhost:8080/api/sesiones/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Error cancelando clase");
-
-        // Si backend responde bien, quitamos la clase del estado local
-        setMisClases((prev) => prev.filter((c) => c.id !== id));
-      })
-      .catch(() => alert("Error al cancelar la clase"));
-  };
-
   return (
     <Container className="py-5">
-      {/* Cabecera principal de la página */}
+      {/* Cabecera */}
       <Row className="align-items-end g-3 mb-4">
         <Col md={7}>
           <h1 className="fw-bold mb-1">Mi cuenta</h1>
           <p className="text-secondary mb-0">
-            Gestiona tus reservas, ligas, clases y datos personales.
+            Gestiona tus reservas, ligas y datos personales.
           </p>
         </Col>
 
@@ -192,7 +147,7 @@ export default function MiCuenta() {
       </Row>
 
       <Row className="g-4">
-        {/* Bloque lateral con perfil y accesos rápidos */}
+        {/* PERFIL */}
         <Col lg={4}>
           <Card className="shadow-sm border-0">
             <Card.Body>
@@ -274,10 +229,10 @@ export default function MiCuenta() {
           </Card>
         </Col>
 
-        {/* Bloque principal con reservas, clases y ligas */}
+        {/* MIS RESERVAS + MIS LIGAS */}
         <Col lg={8}>
           <Row className="g-4">
-            {/* Mis reservas de pista */}
+            {/* MIS RESERVAS */}
             <Col xs={12}>
               <Card className="shadow-sm border-0">
                 <Card.Body>
@@ -288,7 +243,7 @@ export default function MiCuenta() {
                         className="text-secondary"
                         style={{ fontSize: ".95rem" }}
                       >
-                        Tus reservas de pista confirmadas.
+                        Tus reservas confirmadas.
                       </div>
                     </div>
                     <Button
@@ -316,7 +271,7 @@ export default function MiCuenta() {
                                 {r.fecha} · {r.hora}
                               </div>
                               <div className="text-secondary">
-                                {r.pistaNombre || r.pista?.nombre || `Pista ${r.pistaId}`}
+                                {r.pista?.nombre || `Pista ${r.pistaId}`}
                               </div>
                             </div>
 
@@ -325,6 +280,7 @@ export default function MiCuenta() {
                                 {r.estado}
                               </Badge>
 
+                              {/* ✅ CAMBIO: cancelar real */}
                               <Button
                                 variant="outline-danger"
                                 size="sm"
@@ -345,72 +301,7 @@ export default function MiCuenta() {
               </Card>
             </Col>
 
-            {/* Mis clases */}
-            <Col xs={12}>
-              <Card className="shadow-sm border-0">
-                <Card.Body>
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                      <div className="fw-bold">Mis clases</div>
-                      <div
-                        className="text-secondary"
-                        style={{ fontSize: ".95rem" }}
-                      >
-                        Tus clases reservadas actualmente.
-                      </div>
-                    </div>
-                    <Button
-                      as={Link}
-                      to="/clases"
-                      variant="outline-primary"
-                      size="sm"
-                    >
-                      Ver clases
-                    </Button>
-                  </div>
-
-                  {misClases.length === 0 ? (
-                    <div className="text-secondary">
-                      Aún no tienes clases reservadas.
-                    </div>
-                  ) : (
-                    <ListGroup variant="flush">
-                      {misClases.map((c) => (
-                        <ListGroup.Item key={c.id} className="px-0">
-                          <div className="d-flex justify-content-between align-items-start gap-3">
-                            <div>
-                              <div className="fw-semibold">
-                                {c.fecha} · {c.horaInicio}
-                              </div>
-                              <div className="text-secondary">
-                                {c.clase?.nombre} · {c.pista?.nombre}
-                              </div>
-                            </div>
-
-                            <div className="d-flex flex-column align-items-end gap-2">
-                              <Badge bg={c.activa ? "primary" : "secondary"}>
-                                {c.activa ? "Activa" : "Cancelada"}
-                              </Badge>
-
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
-                                disabled={!c.activa}
-                                onClick={() => handleCancelClase(c.id)}
-                              >
-                                {c.activa ? "Cancelar" : "Cancelada"}
-                              </Button>
-                            </div>
-                          </div>
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-
-            {/* Mis ligas */}
+            {/* MIS LIGAS */}
             <Col xs={12}>
               <Card className="shadow-sm border-0">
                 <Card.Body>

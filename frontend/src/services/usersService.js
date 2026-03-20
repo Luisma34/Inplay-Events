@@ -1,105 +1,113 @@
-// frontend/src/services/usersService.js
-const STORAGE_KEY = "inplay_users_v1";
+const API_URL = "http://localhost:8080/api/usuarios";
 
-function load() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
+// mapper backend → frontend
+function mapUser(u) {
+  return {
+    id: u.id,
+    name: u.nombre,
+    email: u.email,
+    role: mapRoleFromBackend(u.rol?.rol),
+    active: u.active,
+  };
 }
 
-function save(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event("inplay:users-updated"));
+// mapper frontend → backend
+function mapRoleToBackend(role) {
+  if (role === "ADMIN") return "ROLE_ADMIN";
+  if (role === "PROFESOR") return "ROLE_PROFESOR";
+  return "ROLE_USUARIO";
 }
 
-function getNextId(items) {
-  if (items.length === 0) return 1;
-  return Math.max(...items.map((u) => u.id)) + 1;
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+function mapRoleFromBackend(role) {
+  if (role === "ROLE_ADMIN") return "ADMIN";
+  if (role === "ROLE_PROFESOR") return "PROFESOR";
+  return "USER";
 }
 
 export const usersService = {
-  // Lista completa (admin)
-  getAll() {
-    return load().sort((a, b) => (a.email || "").localeCompare(b.email || ""));
+  async getAll() {
+    const res = await fetch(API_URL, {
+      credentials: "include",
+    });
+
+    if (!res.ok) throw new Error("Error cargando usuarios");
+
+    const data = await res.json();
+    return data.map(mapUser);
   },
 
-  getById(id) {
-    return load().find((u) => u.id === id) || null;
-  },
+  async create({ name, email, role }) {
+    // ⚠️ password dummy MVP
+    const res = await fetch(API_URL, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nombre: name,
+        email,
+        password: "123456", // MVP
+        rol: {
+          rol: mapRoleToBackend(role),
+        },
+        active: true,
+      }),
+    });
 
-  getByEmail(email) {
-    const em = normalizeEmail(email);
-    return load().find((u) => normalizeEmail(u.email) === em) || null;
-  },
-
-  create(user) {
-    const items = load();
-    const email = normalizeEmail(user.email);
-
-    if (!email) throw new Error("Email obligatorio");
-    if (items.some((u) => normalizeEmail(u.email) === email)) {
-      throw new Error("Ese email ya existe");
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Error creando usuario");
     }
 
-    const newUser = {
-      id: getNextId(items),
-      name: (user.name || "").trim() || "Usuario",
-      email,
-      role: user.role || "USER", // USER | PROFESOR | ADMIN
-      active: user.active ?? true,
-      createdAt: new Date().toISOString(),
-    };
-
-    items.push(newUser);
-    save(items);
-    return newUser;
+    return mapUser(await res.json());
   },
 
-  update(id, patch) {
-    const items = load();
-    const idx = items.findIndex((u) => u.id === id);
-    if (idx === -1) return null;
+  async setActive(id, active) {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        active,
+      }),
+    });
 
-    const next = { ...items[idx], ...patch };
+    if (!res.ok) throw new Error("Error actualizando estado");
 
-    // si cambia email, validar duplicados
-    if (patch.email !== undefined) {
-      const email = normalizeEmail(patch.email);
-      if (!email) throw new Error("Email obligatorio");
-      const duplicated = items.some(
-        (u) => u.id !== id && normalizeEmail(u.email) === email
-      );
-      if (duplicated) throw new Error("Ese email ya existe");
-      next.email = email;
+    return true;
+  },
+
+  async setRole(id, role) {
+    const res = await fetch(`${API_URL}/${id}/rol`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nuevoRol: mapRoleToBackend(role),
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Error cambiando rol");
     }
 
-    if (patch.name !== undefined) next.name = (patch.name || "").trim() || "Usuario";
-
-    items[idx] = next;
-    save(items);
-    return next;
+    return true;
   },
 
-  setRole(id, role) {
-    return this.update(id, { role });
-  },
+  async remove(id) {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
-  setActive(id, active) {
-    return this.update(id, { active: !!active });
-  },
+    if (!res.ok) throw new Error("Error eliminando usuario");
 
-  remove(id) {
-    const items = load();
-    const next = items.filter((u) => u.id !== id);
-    save(next);
-    return next.length !== items.length;
+    return true;
   },
 };

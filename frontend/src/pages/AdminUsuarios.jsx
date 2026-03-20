@@ -1,12 +1,23 @@
 // frontend/src/pages/AdminUsuarios.jsx
 import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Card, Form, Button, Table, Badge, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Table,
+  Badge,
+  Alert,
+} from "react-bootstrap";
 import { usersService } from "../services/usersService";
 import { getUser } from "../auth/auth";
 
 function roleBadge(role) {
-  if (role === "ADMIN") return "danger";
-  if (role === "PROFESOR") return "warning";
+  if (role === "ROLE_SUPERADMIN") return "dark";
+  if (role === "ROLE_ADMIN") return "danger";
+  if (role === "ROLE_PROFESOR") return "warning";
   return "secondary";
 }
 
@@ -19,74 +30,104 @@ export default function AdminUsuarios() {
   // formulario alta
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("USER");
+  const [role, setRole] = useState("ROLE_USUARIO");
+
+  const refresh = async () => {
+    try {
+      const data = await usersService.getAll();
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    const refresh = () => setItems(usersService.getAll());
     refresh();
-
-    const onInternal = () => refresh();
-    window.addEventListener("inplay:users-updated", onInternal);
-
-    return () => window.removeEventListener("inplay:users-updated", onInternal);
   }, []);
 
   const stats = useMemo(() => {
     const total = items.length;
-    const admins = items.filter((u) => u.role === "ADMIN").length;
-    const profes = items.filter((u) => u.role === "PROFESOR").length;
+    const admins = items.filter((u) => u.rol?.rol === "ROLE_ADMIN").length;
+    const profes = items.filter((u) => u.rol?.rol === "ROLE_PROFESOR").length;
     const activos = items.filter((u) => u.active).length;
     return { total, admins, profes, activos };
   }, [items]);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     setMsg("");
+    
+    if (!name || !email) {
+      setMsg("Nombre y email obligatorios");
+      return;
+    }
+
     try {
-      usersService.create({ name, email, role, active: true });
+      await usersService.create({ name, email, role });
+      await refresh();
       setName("");
       setEmail("");
-      setRole("USER");
-      setMsg("✅ Usuario creado.");
+      setRole("ROLE_USUARIO");
+      setMsg("Usuario creado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error creando usuario"}`);
     }
   };
 
-  const handleToggleActive = (u) => {
+  const handleToggleActive = async (u) => {
     setMsg("");
+
+    if (u.rol?.rol === "ROLE_SUPERADMIN") {
+      setMsg(" No puedes desactivar el SUPERADMIN.");
+      return;
+    }
     try {
-      usersService.setActive(u.id, !u.active);
-      setMsg(u.active ? "✅ Usuario desactivado." : "✅ Usuario activado.");
+      await usersService.setActive(u.id, !u.active);
+      await refresh();
+      setMsg(u.active ? "Usuario desactivado." : " Usuario activado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error"}`);
     }
   };
 
-  const handleChangeRole = (u, nextRole) => {
+  const handleChangeRole = async (u, nextRole) => {
     setMsg("");
+
+    if (u.rol?.rol === "ROLE_SUPERADMIN") {
+      setMsg(" No puedes modificar el SUPERADMIN.");
+      return;
+    }
+
     try {
-      usersService.setRole(u.id, nextRole);
-      setMsg("✅ Rol actualizado.");
+      await usersService.setRole(u.id, nextRole);
+      await refresh();
+      setMsg(" Rol actualizado.");
     } catch (e) {
-      setMsg(`⚠️ ${e.message || "Error"}`);
+      setMsg(` ${e.message || "Error"}`);
     }
   };
 
-  const handleDelete = (u) => {
+  const handleDelete = async (u) => {
     setMsg("");
+
+    // evitar eliminar al SUPERADMIN
+    if (u.rol?.rol === "ROLE_SUPERADMIN") {
+      setMsg(" No puedes eliminar el SUPERADMIN.");
+      return;
+    }
     // evitar liadas típicas
-    if (currentUser?.email && String(u.email).toLowerCase() === String(currentUser.email).toLowerCase()) {
-      setMsg("⚠️ No puedes eliminarte a ti mismo.");
+    if (currentUser?.email?.toLowerCase() === u.email.toLowerCase()) {
+      setMsg(" No puedes eliminarte a ti mismo.");
       return;
     }
     const ok = window.confirm(`¿Eliminar a ${u.email}?`);
     if (!ok) return;
 
     try {
-      usersService.remove(u.id);
-      setMsg("✅ Usuario eliminado.");
+      await usersService.remove(u.id);
+      await refresh();
+      setMsg(" Usuario eliminado.");
     } catch (e) {
-      setMsg(`⚠️ ${e.message || "Error"}`);
+      setMsg(` ${e.message || "Error"}`);
     }
   };
 
@@ -96,7 +137,7 @@ export default function AdminUsuarios() {
         <Col md={7}>
           <h1 className="fw-bold mb-1">Admin · Usuarios</h1>
           <p className="text-secondary mb-0">
-            Altas/bajas, roles y activación. (V1: localStorage)
+            Altas/bajas, roles y activación.
           </p>
         </Col>
 
@@ -131,22 +172,38 @@ export default function AdminUsuarios() {
           <Row className="g-3">
             <Col md={4}>
               <Form.Label className="mb-1">Nombre</Form.Label>
-              <Form.Control value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" />
+              <Form.Control
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nombre"
+              />
             </Col>
             <Col md={4}>
               <Form.Label className="mb-1">Email</Form.Label>
-              <Form.Control value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@ejemplo.com" />
+              <Form.Control
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="correo@ejemplo.com"
+              />
             </Col>
             <Col md={2}>
               <Form.Label className="mb-1">Rol</Form.Label>
-              <Form.Select value={role} onChange={(e) => setRole(e.target.value)}>
+              <Form.Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
                 <option value="USER">USER</option>
                 <option value="PROFESOR">PROFESOR</option>
                 <option value="ADMIN">ADMIN</option>
               </Form.Select>
             </Col>
             <Col md={2} className="d-flex align-items-end">
-              <Button className="w-100" onClick={handleCreate}>
+              {/* El botón de crear se habilita al menos con nombre y email, el rol por defecto es USER */}
+              <Button
+                className="w-100"
+                onClick={handleCreate}
+                disabled={!name || !email}
+              >
                 Crear
               </Button>
             </Col>
@@ -178,51 +235,57 @@ export default function AdminUsuarios() {
                   </td>
                 </tr>
               ) : (
-                items.map((u) => (
-                  <tr key={u.id}>
-                    <td className="text-secondary">{u.id}</td>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <Badge bg={roleBadge(u.role)}>{u.role}</Badge>
-                        <Form.Select
-                          size="sm"
-                          value={u.role}
-                          onChange={(e) => handleChangeRole(u, e.target.value)}
-                          style={{ maxWidth: 140 }}
-                        >
-                          <option value="USER">USER</option>
-                          <option value="PROFESOR">PROFESOR</option>
-                          <option value="ADMIN">ADMIN</option>
-                        </Form.Select>
-                      </div>
-                    </td>
-                    <td>
-                      <Badge bg={u.active ? "success" : "secondary"}>
-                        {u.active ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </td>
-                    <td className="text-end">
-                      <div className="d-inline-flex gap-2">
-                        <Button
-                          size="sm"
-                          variant={u.active ? "outline-secondary" : "outline-success"}
-                          onClick={() => handleToggleActive(u)}
-                        >
-                          {u.active ? "Desactivar" : "Activar"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline-danger"
-                          onClick={() => handleDelete(u)}
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                items
+                  .filter((u) => u.rol?.rol !== "ROLE_SUPERADMIN")
+                  .map((u) => (
+                    <tr key={u.id}>
+                      <td className="text-secondary">{u.id}</td>
+                      <td>{u.name}</td>
+                      <td>{u.email}</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <Badge bg={roleBadge(u.rol?.rol)}>{u.rol?.rol}</Badge>
+                          <Form.Select
+                            size="sm"
+                            value={u.rol?.rol}
+                            onChange={(e) =>
+                              handleChangeRole(u, e.target.value)
+                            }
+                            style={{ maxWidth: 140 }}
+                          >
+                            <option value="ROLE_USUARIO">USER</option>
+                            <option value="ROLE_PROFESOR">PROFESOR</option>
+                            <option value="ROLE_ADMIN">ADMIN</option>
+                          </Form.Select>
+                        </div>
+                      </td>
+                      <td>
+                        <Badge bg={u.active ? "success" : "secondary"}>
+                          {u.active ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </td>
+                      <td className="text-end">
+                        <div className="d-inline-flex gap-2">
+                          <Button
+                            size="sm"
+                            variant={
+                              u.active ? "outline-secondary" : "outline-success"
+                            }
+                            onClick={() => handleToggleActive(u)}
+                          >
+                            {u.active ? "Desactivar" : "Activar"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => handleDelete(u)}
+                          >
+                            Eliminar
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
               )}
             </tbody>
           </Table>

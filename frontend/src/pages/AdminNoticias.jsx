@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Container, Row, Col, Card, Button, Form, Badge, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  Badge,
+  Alert,
+} from "react-bootstrap";
 import { getUser } from "../auth/auth";
 
 export default function AdminNoticias() {
@@ -69,7 +78,6 @@ export default function AdminNoticias() {
       titulo: title.trim(),
       contenido: content.trim(),
       visible: published,
-      usuario: user?.id ? { id: user.id } : null,
     };
 
     // Si estamos editando, hacemos PUT
@@ -152,7 +160,11 @@ export default function AdminNoticias() {
         titulo: n.titulo,
         contenido: n.contenido,
         visible: !n.visible,
-        usuario: n.usuario ? { id: n.usuario.id } : user?.id ? { id: user.id } : null,
+        usuario: n.usuario
+          ? { id: n.usuario.id }
+          : user?.id
+            ? { id: user.id }
+            : null,
       }),
     })
       .then((res) => {
@@ -227,7 +239,11 @@ export default function AdminNoticias() {
                 </h5>
 
                 {isEditing && (
-                  <Button variant="outline-secondary" size="sm" onClick={resetForm}>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={resetForm}
+                  >
                     Cancelar edición
                   </Button>
                 )}
@@ -296,7 +312,10 @@ export default function AdminNoticias() {
                     <div>
                       <div className="fw-bold">{n.titulo}</div>
 
-                      <div className="text-secondary" style={{ fontSize: ".9rem" }}>
+                      <div
+                        className="text-secondary"
+                        style={{ fontSize: ".9rem" }}
+                      >
                         {n.fechaPublicacion
                           ? new Date(n.fechaPublicacion).toLocaleDateString()
                           : "Sin fecha"}
@@ -309,7 +328,10 @@ export default function AdminNoticias() {
                   </div>
 
                   {n.contenido ? (
-                    <div className="text-secondary mt-2" style={{ fontSize: ".95rem" }}>
+                    <div
+                      className="text-secondary mt-2"
+                      style={{ fontSize: ".95rem" }}
+                    >
                       {n.contenido.length > 100
                         ? n.contenido.slice(0, 100) + "..."
                         : n.contenido}
@@ -317,18 +339,26 @@ export default function AdminNoticias() {
                   ) : null}
 
                   <div className="d-grid gap-2 mt-3">
-                    <Button variant="outline-primary" onClick={() => handleEdit(n)}>
+                    <Button
+                      variant="outline-primary"
+                      onClick={() => handleEdit(n)}
+                    >
                       Editar
                     </Button>
 
                     <Button
-                      variant={n.visible ? "outline-warning" : "outline-success"}
+                      variant={
+                        n.visible ? "outline-warning" : "outline-success"
+                      }
                       onClick={() => togglePublished(n)}
                     >
                       {n.visible ? "Ocultar" : "Publicar"}
                     </Button>
 
-                    <Button variant="outline-danger" onClick={() => handleDelete(n)}>
+                    <Button
+                      variant="outline-danger"
+                      onClick={() => handleDelete(n)}
+                    >
                       Eliminar
                     </Button>
                   </div>

@@ -66,7 +66,7 @@ export default function AppHeader({ user, onLogout }) {
                   Mi cuenta
                 </NavDropdown.Item>
 
-                {user.role === "ADMIN" && (
+                {(user.role === "ADMIN" || user.role === "SUPERADMIN") && (
                   <NavDropdown.Item as={Link} to="/admin">
                     Panel Admin
                   </NavDropdown.Item>
