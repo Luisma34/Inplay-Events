@@ -55,7 +55,7 @@ export default function AdminUsuarios() {
 
   const handleCreate = async () => {
     setMsg("");
-
+    
     if (!name || !email) {
       setMsg("Nombre y email obligatorios");
       return;
