@@ -168,8 +168,16 @@ export default function App() {
         enableDeclineButton
         cookieName="inplay_cookies"
         style={{ background: "#1f2937" }}
-        buttonStyle={{ background: "#22c55e", color: "#fff" }}
-        declineButtonStyle={{ background: "#ef4444", color: "#fff" }}
+        buttonStyle={{ background: "#f3f4f6", color: "#111827",
+          borderRadius: "5px",
+          padding: "10px 20px",
+          marginLeft: "10px"
+         }}
+        declineButtonStyle={{ background: "#f3f4f6", color: "#111827",
+          borderRadius: "5px",
+          padding: "10px 20px",
+          marginLeft: "10px"
+         }}
       >
         Utilizamos cookies para mejorar la experiencia.{" "}
         <Link to="/politica-cookies">Más información</Link>
