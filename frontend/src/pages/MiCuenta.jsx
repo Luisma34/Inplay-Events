@@ -8,7 +8,6 @@ import {
   Badge,
   ListGroup,
   Form,
-  Modal
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { getUser } from "../auth/auth";
@@ -26,42 +25,42 @@ function badgeVariantByStatus(status) {
 export default function MiCuenta() {
   const user = getUser();
 
-  // Datos para cargar ligas desde el backend en V2. Por ahora es demo.
+  // Ligas del usuario
   const [misLigas, setMisLigas] = useState([]);
 
-  // Datos para cargar reservas desde el backend en V2. Por ahora es demo.
+  // Reservas del usuario
   const [myReservas, setMyReservas] = useState([]);
 
-  // Cargar reservas del usuario al montar el componente
+  // Clases/sesiones del usuario
+  const [misSesiones, setMisSesiones] = useState([]);
+
+  // Cargar reservas del usuario
   useEffect(() => {
-   const cargarReservas = () => {
-    fetch("http://localhost:8080/api/reservas/mis-reservas", {
-      credentials: "include",
-    })
-      // El backend devuelve las horas como "HH:mm" o como objetos {hour: H, minute: M}, así que normalizamos ambos casos
-      .then((res) => {
-        // Si no es 200, probablemente no esté autenticado o haya un error, así que lanzamos para ir al catch
-        if (!res.ok) {
-          throw new Error("Error cargando reservas");
-        }
-        return res.json();
+    const cargarReservas = () => {
+      fetch("http://localhost:8080/api/reservas/mis-reservas", {
+        credentials: "include",
       })
-      .then((data) => setMyReservas(data))
-      .catch(() => setMyReservas([]));
-   };
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Error cargando reservas");
+          }
+          return res.json();
+        })
+        .then((data) => setMyReservas(data))
+        .catch(() => setMyReservas([]));
+    };
 
-   cargarReservas();
+    cargarReservas();
 
-    // Escuchar evento personalizado para recargar reservas cuando se haga una nueva reserva
+    // Recargar reservas cuando se cree/cancele una reserva
     window.addEventListener("inplay:reservas-updated", cargarReservas);
 
-    // Limpiar el listener al desmontar
     return () => {
       window.removeEventListener("inplay:reservas-updated", cargarReservas);
     };
   }, []);
 
-  // Cargar ligas del usuario al montar el componente (demo, en V2 se conecta al backend)
+  // Cargar ligas del usuario
   useEffect(() => {
     fetch("http://localhost:8080/api/ligas/mis-ligas", {
       credentials: "include",
@@ -72,6 +71,30 @@ export default function MiCuenta() {
       })
       .then((data) => setMisLigas(data))
       .catch(() => setMisLigas([]));
+  }, []);
+
+  // Cargar clases/sesiones del usuario
+  useEffect(() => {
+    const cargarSesiones = () => {
+      fetch("http://localhost:8080/api/sesiones/mis-sesiones", {
+        credentials: "include",
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Error cargando sesiones");
+          return res.json();
+        })
+        .then((data) => setMisSesiones(data))
+        .catch(() => setMisSesiones([]));
+    };
+
+    cargarSesiones();
+
+    // Recargar mis clases cuando el usuario se apunte a una clase
+    window.addEventListener("inplay:sesiones-updated", cargarSesiones);
+
+    return () => {
+      window.removeEventListener("inplay:sesiones-updated", cargarSesiones);
+    };
   }, []);
 
   // Perfil editable demo
@@ -89,7 +112,7 @@ export default function MiCuenta() {
     alert("Guardado (demo). En V2 se conecta al backend.");
   };
 
-  // función para cancelar una reserva (solo si no está ya cancelada)
+  // Cancelar liga
   const handleCancelLiga = (ligaId) => {
     const ok = window.confirm(
       "¿Seguro que quieres cancelar tu inscripción en esta liga?",
@@ -108,7 +131,7 @@ export default function MiCuenta() {
       .catch(() => alert("Error al cancelar la liga"));
   };
 
-  // función para cancelar una reserva (solo si no está ya cancelada)
+  // Cancelar reserva
   const handleCancelReserva = (id) => {
     const ok = window.confirm("¿Seguro que quieres cancelar esta reserva?");
     if (!ok) return;
@@ -118,11 +141,32 @@ export default function MiCuenta() {
       credentials: "include",
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Error cancelando");
+        if (!res.ok) throw new Error("Error cancelando reserva");
 
         setMyReservas((prev) => prev.filter((r) => r.id !== id));
       })
       .catch(() => alert("Error al cancelar la reserva"));
+  };
+
+  // Cancelar clase/sesión
+  const handleCancelSesion = (id) => {
+    const ok = window.confirm("¿Seguro que quieres cancelar esta clase?");
+    if (!ok) return;
+
+    fetch(`http://localhost:8080/api/sesiones/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error cancelando sesión");
+
+        setMisSesiones((prev) =>
+          prev.map((s) =>
+            s.id === id ? { ...s, activa: false } : s
+          )
+        );
+      })
+      .catch(() => alert("Error al cancelar la clase"));
   };
 
   return (
@@ -132,7 +176,7 @@ export default function MiCuenta() {
         <Col md={7}>
           <h1 className="fw-bold mb-1">Mi cuenta</h1>
           <p className="text-secondary mb-0">
-            Gestiona tus reservas, ligas y datos personales.
+            Gestiona tus reservas, ligas, clases y datos personales.
           </p>
         </Col>
 
@@ -229,7 +273,7 @@ export default function MiCuenta() {
           </Card>
         </Col>
 
-        {/* MIS RESERVAS + MIS LIGAS */}
+        {/* RESERVAS + CLASES + LIGAS */}
         <Col lg={8}>
           <Row className="g-4">
             {/* MIS RESERVAS */}
@@ -280,7 +324,6 @@ export default function MiCuenta() {
                                 {r.estado}
                               </Badge>
 
-                              {/* ✅ CAMBIO: cancelar real */}
                               <Button
                                 variant="outline-danger"
                                 size="sm"
@@ -290,6 +333,76 @@ export default function MiCuenta() {
                                 {r.estado === "Cancelada"
                                   ? "Cancelada"
                                   : "Cancelar"}
+                              </Button>
+                            </div>
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  )}
+                </Card.Body>
+              </Card>
+            </Col>
+
+            {/* MIS CLASES */}
+            <Col xs={12}>
+              <Card className="shadow-sm border-0">
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                      <div className="fw-bold">Mis clases</div>
+                      <div
+                        className="text-secondary"
+                        style={{ fontSize: ".95rem" }}
+                      >
+                        Tus clases reservadas.
+                      </div>
+                    </div>
+                    <Button
+                      as={Link}
+                      to="/clases"
+                      variant="outline-primary"
+                      size="sm"
+                    >
+                      Ver clases
+                    </Button>
+                  </div>
+
+                  {misSesiones.length === 0 ? (
+                    <div className="text-secondary">
+                      Aún no estás apuntado a ninguna clase.
+                    </div>
+                  ) : (
+                    <ListGroup variant="flush">
+                      {misSesiones.map((s) => (
+                        <ListGroup.Item key={s.id} className="px-0">
+                          <div className="d-flex justify-content-between align-items-start gap-3">
+                            <div>
+                              <div className="fw-semibold">
+                                {s.nombreClase || "Clase"}
+                              </div>
+
+                              <div className="text-secondary">
+                                {s.fecha} · {s.horaInicio} - {s.horaFin}
+                              </div>
+
+                              <div className="text-secondary">
+                                {s.nombrePista || "Pista"}
+                              </div>
+                            </div>
+
+                            <div className="d-flex flex-column align-items-end gap-2">
+                              <Badge bg={s.activa ? "success" : "secondary"}>
+                                {s.activa ? "Activa" : "Cancelada"}
+                              </Badge>
+
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                disabled={!s.activa}
+                                onClick={() => handleCancelSesion(s.id)}
+                              >
+                                {s.activa ? "Cancelar" : "Cancelada"}
                               </Button>
                             </div>
                           </div>
