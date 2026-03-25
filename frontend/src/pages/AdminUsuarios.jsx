@@ -51,8 +51,8 @@ export default function AdminUsuarios() {
 
   const stats = useMemo(() => {
     const total = items.length;
-    const admins = items.filter((u) => u.rol?.rol === "ROLE_ADMIN").length;
-    const profes = items.filter((u) => u.rol?.rol === "ROLE_PROFESOR").length;
+    const admins = items.filter((u) => u.role === "ROLE_ADMIN").length;
+    const profes = items.filter((u) => u.role === "ROLE_PROFESOR").length;
     const activos = items.filter((u) => u.active).length;
     return { total, admins, profes, activos };
   }, [items]);
@@ -260,8 +260,8 @@ export default function AdminUsuarios() {
                 <th style={{ width: 70 }}>ID</th>
                 <th>Nombre</th>
                 <th>Email</th>
-                <th style={{ width: 160 }}>Rol</th>
-                <th style={{ width: 120 }}>Estado</th>
+                <th style={{ width: 195 }}>Rol</th>
+                <th style={{ width: 100 }}>Estado</th>
                 <th style={{ width: 260 }} className="text-end">
                   Acciones
                 </th>
@@ -282,10 +282,17 @@ export default function AdminUsuarios() {
                       <td className="text-secondary">{u.id}</td>
                       <td>{u.nombre}</td>
                       <td>{u.email}</td>
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          <Badge bg={roleBadge(u.rol?.rol)}>
-                            {u.rol?.replace("ROLE_", "")}
+                      <td className="text-center align-middle p-0">
+                        <div
+                          className="d-flex justify-content-center align-items-center gap-2 w-100"
+                          style={{ minHeight: 50 }}
+                        >
+                          <Badge
+                            bg={roleBadge(u.role)}
+                            className="d-flex align-items-center"
+                            style={{ height: 30 }}
+                          >
+                            {u.role?.replace("ROLE_", "")}
                           </Badge>
                           <Form.Select
                             size="sm"
@@ -293,7 +300,8 @@ export default function AdminUsuarios() {
                             onChange={(e) =>
                               handleChangeRole(u, e.target.value)
                             }
-                            style={{ maxWidth: 140 }}
+                            style={{ width: "100%", height: 30 , maxWidth: 120}}
+                            className="text-center"
                           >
                             <option value="ROLE_USUARIO">USUARIO</option>
                             <option value="ROLE_PROFESOR">PROFESOR</option>
