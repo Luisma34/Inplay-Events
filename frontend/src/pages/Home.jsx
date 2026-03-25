@@ -36,11 +36,11 @@ const quickActions = [
   },
   {
     title: "Clases",
-    text: "Agenda semanal con profesor, nivel y reserva (próximamente).",
+    text: "Agenda semanal con profesor, nivel y reserva.",
     icon: "🎾",
     to: "/clases",
-    buttonText: "Próximamente",
-    buttonClass: "btn-outline-secondary",
+    buttonText: "Buscar clases",
+    buttonClass: "btn-brand",
     disabled: true,
   },
 
@@ -49,8 +49,8 @@ const quickActions = [
     text: "Elige fecha y hora, mira disponibilidad y busca partido.",
     icon: "🆚",
     to: "/reservas",
-    buttonText: "Ir a buscar partidos",
-    buttonClass: "btn-brand",
+    buttonText: "Próximamente",
+    buttonClass: "btn-outline-brand",
     disabled: true,
   }
 ];

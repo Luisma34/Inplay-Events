@@ -28,7 +28,7 @@ export default function BuscarPartidos() {
         <Col md={6}>
           <h1 className="fw-bold mb-1">Buscar partido</h1>
           <p className="text-secondary mb-0">
-            Filtra por fecha, nivel y tipo. (Por ahora es demo; luego vendrá del backend)
+            Filtra por fecha, nivel y tipo. Los partidos disponibles aparecerán abajo.
           </p>
         </Col>
 
