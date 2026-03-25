@@ -117,8 +117,12 @@ export default function AdminUsuarios() {
     }
 
     try {
-      await usersService.setRole(u.id, nextRole);
-      await refresh();
+      const updatedUser = await usersService.setRole(u.id, nextRole);
+
+      setItems((prev) =>
+        prev.map((item) => (item.id === u.id ? updatedUser : item)),
+      );
+
       setMsg(" Rol actualizado.");
     } catch (e) {
       setMsg(` ${e.message || "Error"}`);
