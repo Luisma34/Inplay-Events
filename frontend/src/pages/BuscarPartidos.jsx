@@ -28,7 +28,7 @@ export default function BuscarPartidos() {
         <Col md={6}>
           <h1 className="fw-bold mb-1">Buscar partido</h1>
           <p className="text-secondary mb-0">
-            ¡PRÓXIMAMENTE!
+            Filtra por fecha, nivel y tipo. (Por ahora es demo; luego vendrá del backend)
           </p>
         </Col>
 
@@ -68,6 +68,50 @@ export default function BuscarPartidos() {
             </Card.Body>
           </Card>
         </Col>
+      </Row>
+
+      <Row className="g-3">
+        {filtered.length === 0 ? (
+          <Col>
+            <Card className="border-0 shadow-sm">
+              <Card.Body className="py-4 text-center text-secondary">
+                No hay partidos con esos filtros.
+              </Card.Body>
+            </Card>
+          </Col>
+        ) : (
+          filtered.map((m) => (
+            <Col key={m.id} xs={12} md={6} lg={4}>
+              <Card className="h-100 shadow-sm border-0">
+                <Card.Body className="d-flex flex-column">
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">{m.date}</div>
+                      <div className="text-secondary">{m.hour}</div>
+                    </div>
+                    <Badge bg="secondary">{m.level}</Badge>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="text-secondary">Tipo</div>
+                    <div className="fw-semibold">{m.type}</div>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="text-secondary">Plazas libres</div>
+                    <div className="fw-semibold">{m.spots}</div>
+                  </div>
+
+                  <div className="mt-auto pt-3">
+                    <Button className="w-100" disabled>
+                      Unirme (próximamente)
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        )}
       </Row>
     </Container>
   );
