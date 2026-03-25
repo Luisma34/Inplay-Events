@@ -13,15 +13,15 @@ function mapUser(u) {
 
 // mapper frontend → backend
 function mapRoleToBackend(role) {
-  if (role === "ADMIN") return "ROLE_ADMIN";
-  if (role === "PROFESOR") return "ROLE_PROFESOR";
+  if (role === "ROLE_ADMIN") return "ROLE_ADMIN";
+  if (role === "ROLE_PROFESOR") return "ROLE_PROFESOR";
   return "ROLE_USUARIO";
 }
 
 function mapRoleFromBackend(role) {
-  if (role === "ROLE_ADMIN") return "ADMIN";
-  if (role === "ROLE_PROFESOR") return "PROFESOR";
-  return "USER";
+  if (role === "ROLE_ADMIN") return "ROLE_ADMIN";
+  if (role === "ROLE_PROFESOR") return "ROLE_PROFESOR";
+  return "ROLE_USUARIO";
 }
 
 export const usersService = {
@@ -80,26 +80,28 @@ export const usersService = {
     return true;
   },
 
+  // Devuelve el usuario actualizado (con el nuevo rol)
   async setRole(id, role) {
-    const res = await fetch(`${API_URL}/${id}/rol`, {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nuevoRol: mapRoleToBackend(role),
-      }),
-    });
+  const backendRole = role;
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || "Error cambiando rol");
-    }
+  const res = await fetch(`${API_URL}/${id}/rol`, {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nuevoRol: backendRole,
+    }),
+  });
 
-    return true;
-  },
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Error cambiando rol");
+  }
 
+  return await res.json();
+},
   async remove(id) {
     const res = await fetch(`${API_URL}/${id}`, {
       method: "DELETE",

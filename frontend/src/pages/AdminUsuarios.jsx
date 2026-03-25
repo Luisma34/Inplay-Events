@@ -117,11 +117,10 @@ export default function AdminUsuarios() {
     }
 
     try {
-      const updatedUser = await usersService.setRole(u.id, nextRole);
+      await usersService.setRole(u.id, nextRole);
+      await refresh(); //  fuerza recarga REAL desde backend
 
-      setItems((prev) =>
-        prev.map((item) => (item.id === u.id ? updatedUser : item)),
-      );
+      setMsg("Rol actualizado.");
 
       setMsg(" Rol actualizado.");
     } catch (e) {
@@ -285,10 +284,12 @@ export default function AdminUsuarios() {
                       <td>{u.email}</td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          <Badge bg={roleBadge(u.rol?.rol)}>{u.rol?.rol?.replace("ROLE_", "")}</Badge>
+                          <Badge bg={roleBadge(u.rol?.rol)}>
+                            {u.rol?.replace("ROLE_", "")}
+                          </Badge>
                           <Form.Select
                             size="sm"
-                            value={u.rol?.rol}
+                            value={u.role}
                             onChange={(e) =>
                               handleChangeRole(u, e.target.value)
                             }
