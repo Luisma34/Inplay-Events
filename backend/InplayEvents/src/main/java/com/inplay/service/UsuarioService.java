@@ -130,19 +130,20 @@ public class UsuarioService {
             }
         }
 
-        // Asignar PROFESOR -> ADMIN o SUPERADMIN
-        if (nuevoRol == Rol.RolUsuario.ROLE_PROFESOR) {
-            if (!(rolActual.equals("ROLE_ADMIN") || rolActual.equals("ROLE_SUPERADMIN"))) {
-                throw new RuntimeException("No tienes permisos para asignar este rol");
-            }
-        }
-
+        // Obtener la entidad Rol correspondiente al enum recibido y asignarla al usuario.
+        // Después se persiste el cambio y se recarga desde base de datos para asegurar
+        // que la respuesta devuelve el estado actualizado (evitando datos en caché de Hibernate).
         Rol rol = rolRepository.findByRol(nuevoRol)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         existente.setRol(rol);
 
-        return usuarioRepository.save(existente);
+        // Guardar en BD
+        usuarioRepository.save(existente);
+
+        // IMPORTANTE: devolver actualizado (evita cache vieja)
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
     // Metodo para cambiar contraseña del usuario autenticado
