@@ -285,7 +285,7 @@ export default function AdminUsuarios() {
                       <td>{u.email}</td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          <Badge bg={roleBadge(u.rol?.rol)}>{u.rol?.rol}</Badge>
+                          <Badge bg={roleBadge(u.rol?.rol)}>{u.rol?.rol?.replace("ROLE_", "")}</Badge>
                           <Form.Select
                             size="sm"
                             value={u.rol?.rol}
@@ -294,7 +294,7 @@ export default function AdminUsuarios() {
                             }
                             style={{ maxWidth: 140 }}
                           >
-                            <option value="ROLE_USUARIO">USER</option>
+                            <option value="ROLE_USUARIO">USUARIO</option>
                             <option value="ROLE_PROFESOR">PROFESOR</option>
                             <option value="ROLE_ADMIN">ADMIN</option>
                           </Form.Select>

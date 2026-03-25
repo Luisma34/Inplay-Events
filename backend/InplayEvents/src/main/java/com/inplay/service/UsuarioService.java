@@ -123,11 +123,9 @@ public class UsuarioService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String rolActual = auth.getAuthorities().iterator().next().getAuthority();
 
-        // Asignar ADMIN o SUPERADMIN -> solo SUPERADMIN puede hacerlo
-        if (nuevoRol == Rol.RolUsuario.ROLE_ADMIN || nuevoRol == Rol.RolUsuario.ROLE_SUPERADMIN) {
-            if (!rolActual.equals("ROLE_SUPERADMIN")) {
-                throw new RuntimeException("Solo SUPERADMIN puede asignar rol");
-            }
+        // ADMIN puede cambiar roles normales, pero SOLO SUPERADMIN puede asignar SUPERADMIN
+        if (nuevoRol == Rol.RolUsuario.ROLE_SUPERADMIN && !rolActual.equals("ROLE_SUPERADMIN")) {
+            throw new RuntimeException("Solo SUPERADMIN puede asignar este rol");
         }
 
         // Obtener la entidad Rol correspondiente al enum recibido y asignarla al usuario.
