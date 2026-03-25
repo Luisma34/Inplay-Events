@@ -86,7 +86,7 @@ export default function AdminUsuarios() {
       setPassword("");
       setRole("ROLE_USUARIO");
 
-      setMsg("Usuario creado.");
+      setMsg("Usuario creado correctamente.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error creando usuario"}`);
     }
@@ -184,6 +184,12 @@ export default function AdminUsuarios() {
         </Alert>
       )}
 
+      {/* Información importante sobre la contraseña inicial */}
+      <Alert variant="info">
+        El administrador asigna una contraseña inicial. El usuario podrá
+        cambiarla después desde su cuenta.
+      </Alert>
+
       {/* Alta */}
       <Card className="shadow-sm border-0 mb-4">
         <Card.Body className="p-4">
@@ -211,7 +217,7 @@ export default function AdminUsuarios() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option value="ROLE_USER">USER</option>
+                <option value="ROLE_USUARIO">USER</option>
                 <option value="ROLE_PROFESOR">PROFESOR</option>
                 <option value="ROLE_ADMIN">ADMIN</option>
               </Form.Select>
@@ -224,7 +230,7 @@ export default function AdminUsuarios() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Contraseña"
+                placeholder="Contraseña inicial"
               />
             </Col>
 
@@ -271,7 +277,7 @@ export default function AdminUsuarios() {
                   .map((u) => (
                     <tr key={u.id}>
                       <td className="text-secondary">{u.id}</td>
-                      <td>{u.name}</td>
+                      <td>{u.nombre}</td>
                       <td>{u.email}</td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
