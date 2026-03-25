@@ -36,21 +36,21 @@ const quickActions = [
   },
   {
     title: "Clases",
-    text: "Agenda semanal con profesor, nivel y reserva tu plaza.",
+    text: "Agenda semanal con profesor, nivel y reserva (próximamente).",
     icon: "🎾",
     to: "/clases",
     buttonText: "Próximamente",
-    buttonClass: "btn-brand",
+    buttonClass: "btn-outline-secondary",
     disabled: true,
   },
 
    {
-    title: "¿No tienes contra quién jugar?",
-    text: "PRÓXIMAMENTE: Encuentra jugadores de tu nivel para completar tu partido.",
+    title: "¿No tienes contra quién jugar",
+    text: "Elige fecha y hora, mira disponibilidad y busca partido.",
     icon: "🆚",
     to: "/reservas",
     buttonText: "Ir a buscar partidos",
-    buttonClass: "btn-outline-brand",
+    buttonClass: "btn-brand",
     disabled: true,
   }
 ];
@@ -125,7 +125,7 @@ export default function Home() {
           <Col>
             <h2 className="fw-bold home-sectionTitle">Accesos rápidos</h2>
             <p className="text-secondary mb-0">
-              Reserva pista, únete a ligas activas o apúntate a clases.
+              En la V1 empezamos por reservas y ligas, pero lo dejamos preparado para crecer.
             </p>
           </Col>
         </Row>
