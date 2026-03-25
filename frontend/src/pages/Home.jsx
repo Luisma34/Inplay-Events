@@ -13,8 +13,6 @@ import c5 from "../assets/collage/fotos-60.jpg";
 import c6 from "../assets/collage/fotos-131.jpg";
 import logoInplay from "../assets/collage/in-play-sombra.png";
 
-
-
 const quickActions = [
   {
     title: "Reservas rápidas",
@@ -31,28 +29,27 @@ const quickActions = [
     icon: "🏆",
     to: "/ligas",
     buttonText: "Ver ligas",
-    buttonClass: "btn-outline-brand",
+    buttonClass: "btn-brand",
     disabled: false,
   },
   {
     title: "Clases",
-    text: "Agenda semanal con profesor, nivel y reserva.",
+    text: "Consulta la oferta disponible y apúntate a tus clases.",
     icon: "🎾",
     to: "/clases",
-    buttonText: "Buscar clases",
+    buttonText: "Ver clases",
     buttonClass: "btn-brand",
+    disabled: false,
+  },
+  {
+    title: "¿No tienes contra quién jugar?",
+    text: "Muy pronto podrás encontrar partido y jugar con otros usuarios.",
+    icon: "🆚",
+    to: "/buscar-partidos",
+    buttonText: "Próximamente",
+    buttonClass: "btn-outline-secondary",
     disabled: true,
   },
-
-   {
-    title: "¿No tienes contra quién jugar",
-    text: "Elige fecha y hora, mira disponibilidad y busca partido.",
-    icon: "🆚",
-    to: "/reservas",
-    buttonText: "Próximamente",
-    buttonClass: "btn-outline-brand",
-    disabled: true,
-  }
 ];
 
 const pricingCards = [
@@ -85,47 +82,39 @@ const pricingCards = [
   },
 ];
 
-
 export default function Home() {
   return (
     <>
-     <section className=" hero-bg">
-  {/* Fondo + overlay */}
-  <div
-    className="hero-bg__image"
-    style={{ backgroundImage: `url(${heroImage})` }}
-  />
-  <div className="hero-bg__overlay" />
+      <section className="hero-bg">
+        <div
+          className="hero-bg__image"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        />
+        <div className="hero-bg__overlay" />
 
-  <Container fluid className="hero-bg__content">
-  <Row className="justify-content-center text-center">
-    <Col lg={8} xl={7}>
-      
-      <h1 className="hero-title mb-3">
-        Bienvenido a InPlay
-      </h1>
+        <Container fluid className="hero-bg__content">
+          <Row className="justify-content-center text-center">
+            <Col lg={8} xl={7}>
+              <h1 className="hero-title mb-3">Bienvenido a InPlay</h1>
 
-      <p className="hero-subtitle mb-4">
-        Donde llevamos el pádel a otro nivel
-      </p>
+              <p className="hero-subtitle mb-4">
+                Donde llevamos el pádel a otro nivel
+              </p>
 
-      <Button as={Link} to="/acceso" size="lg" className="btn-hero">
-        ÚNETE AL CLUB
-      </Button>
-
-    </Col>
-  </Row>
-</Container>
-
-</section>
-
+              <Button as={Link} to="/acceso" size="lg" className="btn-hero">
+                ÚNETE AL CLUB
+              </Button>
+            </Col>
+          </Row>
+        </Container>
+      </section>
 
       <Container fluid className="home-wrap py-5 home-quick-actions">
         <Row className="mb-4">
           <Col>
             <h2 className="fw-bold home-sectionTitle">Accesos rápidos</h2>
             <p className="text-secondary mb-0">
-              En la V1 empezamos por reservas y ligas, pero lo dejamos preparado para crecer.
+              Accede rápidamente a las principales secciones del club.
             </p>
           </Col>
         </Row>
@@ -162,7 +151,8 @@ export default function Home() {
             <Col md={8}>
               <h3 className="fw-bold mb-2">¿Quieres competir en liga?</h3>
               <p className="mb-0 text-white-50">
-                Apúntate por nivel, consulta la clasificación y sigue tus resultados.
+                Apúntate por nivel, consulta la clasificación y sigue tus
+                resultados.
               </p>
             </Col>
             <Col md={4} className="text-md-end">
@@ -174,106 +164,85 @@ export default function Home() {
         </div>
       </Container>
 
-      <Collage
-  images={[c1, c2, c3, c4, c5, c6]}
-  logo={logoInplay}
-/>
+      <Collage images={[c1, c2, c3, c4, c5, c6]} logo={logoInplay} />
 
-<section className="levelup-bg">
-  <div
-    className="levelup-bg__image"
-    style={{ backgroundImage: `url(${featuresClases})` }}
-  />
-  <div className="levelup-bg__overlay" />
+      <section className="levelup-bg">
+        <div
+          className="levelup-bg__image"
+          style={{ backgroundImage: `url(${featuresClases})` }}
+        />
+        <div className="levelup-bg__overlay" />
 
-  <Container className="levelup-bg__content text-center">
-    <h2 className="levelup-title mb-3">MEJORA TU NIVEL</h2>
-    <p className="levelup-subtitle mb-4">
-      Apúntate a clases por nivel y empieza a notar el cambio.
-    </p>
+        <Container className="levelup-bg__content text-center">
+          <h2 className="levelup-title mb-3">MEJORA TU NIVEL</h2>
+          <p className="levelup-subtitle mb-4">
+            Apúntate a clases por nivel y empieza a notar el cambio.
+          </p>
 
-    <Button
-      as={Link}
-      to="/clases"
-      size="lg"
-      className="btn-hero"
-      
-    >
-      APÚNTATE
-    </Button>
-  </Container>
-</section>
-      
+          <Button as={Link} to="/clases" size="lg" className="btn-hero">
+            APÚNTATE
+          </Button>
+        </Container>
+      </section>
 
-<section className="home-pricing">
-  <Container className="home-wrap py-5">
-    <Row className="mb-4 text-center">
-      <Col>
-        <h2 className="fw-bold home-sectionTitle">TarifasClases</h2>
-        <p className="text-secondary mb-0">
-          Elige el plan que mejor encaje contigo. (Precios orientativos)
-        </p>
-      </Col>
-    </Row>
+      <section className="home-pricing">
+        <Container className="home-wrap py-5">
+          <Row className="mb-4 text-center">
+            <Col>
+              <h2 className="fw-bold home-sectionTitle">Tarifas clases</h2>
+              <p className="text-secondary mb-0">
+                Elige el plan que mejor encaje contigo. (Precios orientativos)
+              </p>
+            </Col>
+          </Row>
 
-    <Row className="g-4 justify-content-center">
-      {pricingCards.map((p) => (
-        <Col key={p.title} xs={12} md={6} lg={4}>
-          <Card className="h-100 pricing-card">
-            <Card.Body>
-              <div className="pricing-head">
-                <h3 className="pricing-title">{p.title}</h3>
-                <div className="pricing-subtitle">{p.subtitle}</div>
-              </div>
+          <Row className="g-4 justify-content-center">
+            {pricingCards.map((p) => (
+              <Col key={p.title} xs={12} md={6} lg={4}>
+                <Card className="h-100 pricing-card">
+                  <Card.Body>
+                    <div className="pricing-head">
+                      <h3 className="pricing-title">{p.title}</h3>
+                      <div className="pricing-subtitle">{p.subtitle}</div>
+                    </div>
 
-              <div className="pricing-list">
-                {p.items.map((it) => (
-                  <div className="pricing-item" key={it.label}>
-                    <span className="pricing-label">{it.label}</span>
-                    <span className="pricing-price">{it.price}</span>
-                  </div>
-                ))}
-              </div>
+                    <div className="pricing-list">
+                      {p.items.map((it) => (
+                        <div className="pricing-item" key={it.label}>
+                          <span className="pricing-label">{it.label}</span>
+                          <span className="pricing-price">{it.price}</span>
+                        </div>
+                      ))}
+                    </div>
 
-              <div className="pricing-note">
-                Consulta disponibilidad y horarios en recepción.
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  </Container>
-</section>
+                    <div className="pricing-note">
+                      Consulta disponibilidad y horarios en recepción.
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
 
+      <section className="features-bg">
+        <div
+          className="features-bg__image"
+          style={{ backgroundImage: `url(${featuresImage})` }}
+        />
+        <div className="features-bg__overlay" />
 
+        <Container className="features-bg__content text-center">
+          <h2 className="features-title mb-4">EN INPLAY ENCONTRARÁS</h2>
 
-
-
-<section className="features-bg">
-  <div
-    className="features-bg__image"
-    style={{ backgroundImage: `url(${featuresImage})` }}
-
-  />
-  <div className="features-bg__overlay" />
-
-  <Container className="features-bg__content text-center">
-    <h2 className="features-title mb-4">
-      EN INPLAY ENCONTRARÁS
-    </h2>
-
-    <div className="features-list">
-      <span>8 PISTAS</span>
-      <span>APARCAMIENTO</span>
-      <span>CAFETERÍA</span>
-    </div>
-  </Container>
-</section>
-
-
-
-      
+          <div className="features-list">
+            <span>8 PISTAS</span>
+            <span>APARCAMIENTO</span>
+            <span>CAFETERÍA</span>
+          </div>
+        </Container>
+      </section>
     </>
   );
 }
