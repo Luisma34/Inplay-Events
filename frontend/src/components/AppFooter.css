@@ -1,0 +1,50 @@
+.app-footer {
+  width: 100%;
+  background: #0f1115;
+  color: #fff;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+
+
+.footer-title {
+  font-weight: 800;
+  margin-bottom: .75rem;
+}
+
+.footer-subtitle {
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+
+.footer-text {
+  color: rgba(255,255,255,.78);
+  margin-bottom: 1rem;
+}
+
+.footer-muted {
+  color: rgba(255,255,255,.5);
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: .5rem;
+}
+
+.footer-links a {
+  color: rgba(255,255,255,.78);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-contact {
+  color: rgba(255,255,255,.72);
+}
