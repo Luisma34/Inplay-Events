@@ -24,8 +24,12 @@ function roleBadge(role) {
 export default function AdminUsuarios() {
   const currentUser = getUser(); // para evitar “auto borrado” accidental
 
+  // lista de usuarios y mensaje de feedback
   const [items, setItems] = useState([]);
   const [msg, setMsg] = useState("");
+
+  // formulario de cambio de contraseña
+  const [password, setPassword] = useState("");
 
   // formulario alta
   const [name, setName] = useState("");
@@ -55,18 +59,33 @@ export default function AdminUsuarios() {
 
   const handleCreate = async () => {
     setMsg("");
-    
-    if (!name || !email) {
-      setMsg("Nombre y email obligatorios");
+
+    if (!name || !email || !password) {
+      setMsg("Nombre, email y password obligatorios");
       return;
     }
 
+    const roleMap = {
+      ROLE_USUARIO: 1,
+      ROLE_ADMIN: 2,
+      ROLE_PROFESOR: 3,
+    };
+
     try {
-      await usersService.create({ name, email, role });
+      await usersService.create({
+        nombre: name, // Importante el backend espera "nombre" y no "name"
+        email,
+        password, //Importante: el backend se encarga de hashear la contraseña, aquí se envía tal cual
+        rol: { id: roleMap[role] }, // Importante: el backend espera un objeto "rol" con un "id", no solo el nombre del rol
+      });
+
       await refresh();
+
       setName("");
       setEmail("");
+      setPassword("");
       setRole("ROLE_USUARIO");
+
       setMsg("Usuario creado.");
     } catch (e) {
       setMsg(`⚠️ ${e.message || "Error creando usuario"}`);
@@ -192,17 +211,29 @@ export default function AdminUsuarios() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option value="USER">USER</option>
-                <option value="PROFESOR">PROFESOR</option>
-                <option value="ADMIN">ADMIN</option>
+                <option value="ROLE_USER">USER</option>
+                <option value="ROLE_PROFESOR">PROFESOR</option>
+                <option value="ROLE_ADMIN">ADMIN</option>
               </Form.Select>
             </Col>
+
+            {/* El campo de contraseña es opcional, si se deja vacío se asigna una contraseña por defecto y el usuario deberá cambiarla en su primer acceso */}
+            <Col md={4}>
+              <Form.Label className="mb-1">Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Contraseña"
+              />
+            </Col>
+
             <Col md={2} className="d-flex align-items-end">
               {/* El botón de crear se habilita al menos con nombre y email, el rol por defecto es USER */}
               <Button
                 className="w-100"
                 onClick={handleCreate}
-                disabled={!name || !email}
+                disabled={!name || !email || !password}
               >
                 Crear
               </Button>
