@@ -36,8 +36,13 @@ public class UsuarioService {
         usuario.setFechaAlta(java.time.LocalDateTime.now());
         usuario.setActive(true);
 
-        // Si no viene rol, asignamos ROLE_USUARIO por defecto
-        if (usuario.getRol() == null) {
+        // Si viene rol, lo recuperamos de BD para que sea una entidad gestionada.
+        // Si no viene, asignamos ROLE_USUARIO por defecto.
+        if (usuario.getRol() != null && usuario.getRol().getId() != null) {
+            Rol rol = rolRepository.findById(usuario.getRol().getId())
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+            usuario.setRol(rol);
+        } else {
             Rol rolUsuario = rolRepository.findByRol(Rol.RolUsuario.ROLE_USUARIO)
                     .orElseThrow(() -> new RuntimeException("Rol ROLE_USUARIO no encontrado"));
             usuario.setRol(rolUsuario);
@@ -84,7 +89,7 @@ public class UsuarioService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String rolActual = auth.getAuthorities().iterator().next().getAuthority();
 
-         // Si se intenta actualizar un SuperAdmin y no es SuperAdmin
+        // Si se intenta actualizar un SuperAdmin y no es SuperAdmin
         if (existente.getRol().getRol() == Rol.RolUsuario.ROLE_SUPERADMIN
                 && !rolActual.equals("ROLE_SUPERADMIN")) {
             throw new RuntimeException("No tienes permisos para actualizar este rol");
