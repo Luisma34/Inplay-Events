@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CookieConsent from "react-cookie-consent";
 import { Link } from "react-router-dom";
 
@@ -16,6 +16,7 @@ import Noticias from "./pages/Noticias";
 import Register from "./pages/Register";
 import Acceso from "./pages/Accseso.jsx";
 import LigaDetalle from "./pages/LigaDetalle";
+import Contacto from "./pages/Contacto";
 
 import MiCuenta from "./pages/MiCuenta";
 import Admin from "./pages/Admin";
@@ -51,6 +52,7 @@ export default function App() {
         {/* RUTAS PUBLICAS */}
         <Route path="/" element={<Home />} />
         <Route path="/noticias" element={<Noticias />} />
+        <Route path="/contacto" element={<Contacto />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/acceso" element={<Acceso user={user} />} />
@@ -168,16 +170,20 @@ export default function App() {
         enableDeclineButton
         cookieName="inplay_cookies"
         style={{ background: "#1f2937" }}
-        buttonStyle={{ background: "#f3f4f6", color: "#111827",
+        buttonStyle={{
+          background: "#f3f4f6",
+          color: "#111827",
           borderRadius: "5px",
           padding: "10px 20px",
-          marginLeft: "10px"
-         }}
-        declineButtonStyle={{ background: "#f3f4f6", color: "#111827",
+          marginLeft: "10px",
+        }}
+        declineButtonStyle={{
+          background: "#f3f4f6",
+          color: "#111827",
           borderRadius: "5px",
           padding: "10px 20px",
-          marginLeft: "10px"
-         }}
+          marginLeft: "10px",
+        }}
       >
         Utilizamos cookies para mejorar la experiencia.{" "}
         <Link to="/politica-cookies">Más información</Link>
