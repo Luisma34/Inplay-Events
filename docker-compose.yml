@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:11
+    container_name: inplay-mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: club_padel
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./docker/mariadb:/docker-entrypoint-initdb.d
+      - mariadb_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend/InplayEvents
+    container_name: inplay-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: inplay-frontend
+    ports:
+      - "3000:80"
+
+volumes:
+  mariadb_data:
