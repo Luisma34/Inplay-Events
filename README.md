@@ -88,9 +88,9 @@ java -jar target/InplayEvents-0.0.1-SNAPSHOT.jar
 Crear la base de datos:
 
 ```sql
-CREATE DATABASE club_padel;
+CREATE DATABASE clubpadel;
 ````
 
 ## Importar el script:
 ```bash
-mysql -u root -p club_padel < database/club_padel.sql
+mysql -u root -p club_padel < database/clubpadel.sql
