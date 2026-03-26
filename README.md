@@ -94,6 +94,3 @@ CREATE DATABASE club_padel;
 ## Importar el script:
 ```bash
 mysql -u root -p club_padel < database/club_padel.sql
-
-
-
