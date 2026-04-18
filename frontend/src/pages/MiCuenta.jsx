@@ -27,7 +27,8 @@ export default function MiCuenta() {
   const user = getUser();
 
   // Función para mostrar el modal de confirmación con la acción a ejecutar
-  const confirmAction = (callback) => {
+  const confirmAction = (text, callback) => {
+    setModalText(text);
     setAction(() => callback);
     setShowModal(true);
   };
@@ -512,10 +513,15 @@ export default function MiCuenta() {
         <Modal.Body>{modalText}</Modal.Body>
 
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+          >
             Cancelar
           </Button>
           <Button
+            type="button"
             variant="danger"
             onClick={() => {
               if (action) action();

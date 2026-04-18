@@ -66,15 +66,15 @@ export default function AdminUsuarios() {
     }
 
     const roleMap = {
-      ROLE_USUARIO: 1,
+      ROLE_USUARIO: 4,
       ROLE_ADMIN: 2,
       ROLE_PROFESOR: 3,
     };
 
     try {
       await usersService.create({
-        nombre: name, // Importante el backend espera "nombre" y no "name"
-        email,
+        nombre: name.trim(), // Importante el backend espera "nombre" y no "name"
+        email:email.trim(),
         password, //Importante: el backend se encarga de hashear la contraseña, aquí se envía tal cual
         rol: { id: roleMap[role] }, // Importante: el backend espera un objeto "rol" con un "id", no solo el nombre del rol
       });
@@ -242,7 +242,7 @@ export default function AdminUsuarios() {
               <Button
                 className="w-100"
                 onClick={handleCreate}
-                disabled={!name || !email || !password}
+                disabled={!name.trim() || !email.trim() || !password.trim()}
               >
                 Crear
               </Button>

@@ -183,9 +183,8 @@ public class UsuarioService {
             throw new RuntimeException("No tienes permisos para eliminar este rol");
         }
 
-        // Soft delete
-        usuario.setActive(false);
-        usuarioRepository.save(usuario);
+        // Hard delete
+        usuarioRepository.delete(usuario);
 
     }
 

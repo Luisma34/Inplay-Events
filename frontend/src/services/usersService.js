@@ -36,8 +36,7 @@ export const usersService = {
     return data.map(mapUser);
   },
 
-  async create({ name, email, role }) {
-    // ⚠️ password dummy MVP
+  async create({ nombre, email, password, rol }) {
     const res = await fetch(API_URL, {
       method: "POST",
       credentials: "include",
@@ -45,12 +44,10 @@ export const usersService = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        nombre: name,
+        nombre,
         email,
-        password: "123456", // MVP
-        rol: {
-          rol: mapRoleToBackend(role),
-        },
+        password,
+        rol,
         active: true,
       }),
     });
@@ -82,26 +79,26 @@ export const usersService = {
 
   // Devuelve el usuario actualizado (con el nuevo rol)
   async setRole(id, role) {
-  const backendRole = role;
+    const backendRole = role;
 
-  const res = await fetch(`${API_URL}/${id}/rol`, {
-    method: "PUT",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      nuevoRol: backendRole,
-    }),
-  });
+    const res = await fetch(`${API_URL}/${id}/rol`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nuevoRol: backendRole,
+      }),
+    });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Error cambiando rol");
-  }
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Error cambiando rol");
+    }
 
-  return await res.json();
-},
+    return await res.json();
+  },
   async remove(id) {
     const res = await fetch(`${API_URL}/${id}`, {
       method: "DELETE",
