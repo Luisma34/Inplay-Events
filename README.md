@@ -8,7 +8,7 @@ El proyecto está orientado a entornos reales de clubes deportivos, ofreciendo u
 
 ---
 
-##  Objetivos del proyecto
+## Objetivos del proyecto
 
 - Digitalizar la gestión diaria de un club de pádel.
 - Facilitar la reserva de pistas y clases.
@@ -20,7 +20,7 @@ El proyecto está orientado a entornos reales de clubes deportivos, ofreciendo u
 
 ---
 
-##  Perfiles de usuario
+## Perfiles de usuario
 
 - **Administrador (ADMIN)**  
   Control global del sistema: usuarios, ligas, pistas, contenidos y configuración general.
@@ -36,7 +36,7 @@ El proyecto está orientado a entornos reales de clubes deportivos, ofreciendo u
 
 ---
 
-##  Tecnologías empleadas
+## Tecnologías empleadas
 
 ### Frontend
 - HTML5  
@@ -52,28 +52,45 @@ El proyecto está orientado a entornos reales de clubes deportivos, ofreciendo u
 - Arquitectura MVC  
 
 ### Base de datos
-- MariaDB
+- MariaDB  
 
 ### Herramientas
 - Git / GitHub  
 - Maven  
-- IntelliJ IDEA / Visual Studio Code  /Eclipse
+- IntelliJ IDEA / Visual Studio Code / Eclipse  
 - Postman  
 
 ---
 
-## Funcionalidades principales
+## Cómo ejecutar el proyecto
 
-- Registro y autenticación de usuarios.
-- Reserva y cancelación de pistas.
-- Inscripción en ligas.
-- Subida de resultados por parte de los jugadores.
-- Actualización automática de clasificaciones.
-- Gestión de clases deportivas.
-- Publicación y consulta de noticias del club.
-- Acceso diferenciado por roles.
+### Requisitos previos
+
+- Java 17  
+- Maven 3.8 o superior  
+- Node.js (versión 18 o superior recomendada)  
+- MariaDB o PostgreSQL  
 
 ---
 
-Proyecto educativo. Uso restringido a fines formativos.
+### Backend
 
+Acceder al directorio del backend y ejecutar:
+
+```bash
+cd backend
+mvn clean install
+java -jar target/InplayEvents-0.0.1-SNAPSHOT.jar
+````
+
+## Base de datos
+
+Crear la base de datos:
+
+```sql
+CREATE DATABASE clubpadel;
+````
+
+## Importar el script:
+```bash
+mysql -u root -p club_padel < database/clubpadel.sql
