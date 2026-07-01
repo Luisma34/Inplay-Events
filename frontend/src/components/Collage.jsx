@@ -6,7 +6,7 @@ export default function Collage({ images = [], logo }) {
       <div className="collage-grid">
         {images.map((src, idx) => (
           <div className="collage-item" key={idx}>
-            <img src={src} alt={`collage-${idx + 1}`} />
+            <img src={src} alt={`collage-${idx + 1}`} loading="lazy" />
           </div>
         ))}
 
