@@ -45,7 +45,7 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Inplay-Events">
       <AppHeader user={user} onLogout={handleLogout} />
 
       <Routes>
