@@ -86,9 +86,11 @@ export default function Home() {
   return (
     <>
       <section className="hero-bg">
-        <div
+        <img
+          src={heroImage}
           className="hero-bg__image"
-          style={{ backgroundImage: `url(${heroImage})` }}
+          alt=""
+          fetchPriority="high"
         />
         <div className="hero-bg__overlay" />
 
@@ -167,9 +169,10 @@ export default function Home() {
       <Collage images={[c1, c2, c3, c4, c5, c6]} logo={logoInplay} />
 
       <section className="levelup-bg">
-        <div
+        <img
+          src={featuresClases}
           className="levelup-bg__image"
-          style={{ backgroundImage: `url(${featuresClases})` }}
+          alt=""
         />
         <div className="levelup-bg__overlay" />
 
@@ -227,9 +230,10 @@ export default function Home() {
       </section>
 
       <section className="features-bg">
-        <div
+        <img
+          src={featuresImage}
           className="features-bg__image"
-          style={{ backgroundImage: `url(${featuresImage})` }}
+          alt=""
         />
         <div className="features-bg__overlay" />
 
