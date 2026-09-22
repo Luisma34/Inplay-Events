@@ -25,7 +25,6 @@ export default function Login({ onLogin }) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   }, [email]);
 
-  const canSubmit = email.trim().length > 0 && password.length >= 6 && isValidEmail;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

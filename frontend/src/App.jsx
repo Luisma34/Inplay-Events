@@ -26,7 +26,7 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 
 import AvisoLegal from "./pages/AvisoLegal";
 import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
-import PoliticaCookies from "./pages/PoliticaCookies";
+import PoliticaCookies from "./pages/CookiesInfo";
 
 import RequireAuth from "./auth/RequireAuth";
 import { getUser, setUser, clearUser } from "./auth/auth";
