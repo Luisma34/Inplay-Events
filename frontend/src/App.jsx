@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import CookieConsent from "react-cookie-consent";
 import { Link } from "react-router-dom";
 
 import AppHeader from "./components/AppHeader";
 import AppFooter from "./components/AppFooter";
+import ConsentBanner from "./components/ConsentBanner";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -163,37 +163,7 @@ export default function App() {
         <Route path="/politica-cookies" element={<PoliticaCookies />} />
       </Routes>
 
-      <CookieConsent
-        location="bottom"
-        buttonText="Aceptar"
-        declineButtonText="Rechazar"
-        enableDeclineButton
-        cookieName="inplay_cookies"
-        style={{ background: "#1f2937" }}
-        buttonStyle={{
-          background: "#f3f4f6",
-          color: "#111827",
-          borderRadius: "5px",
-          padding: "10px 20px",
-          marginLeft: "10px",
-        }}
-        declineButtonStyle={{
-          background: "#f3f4f6",
-          color: "#111827",
-          borderRadius: "5px",
-          padding: "10px 20px",
-          marginLeft: "10px",
-        }}
-      >
-        Utilizamos cookies para mejorar la experiencia.{" "}
-        <Link to="/politica-cookies">Más información</Link>
-        <Link to="/aviso-legal" style={{ marginLeft: "10px" }}>
-          Aviso Legal
-        </Link>
-        <Link to="/politica-privacidad" style={{ marginLeft: "10px" }}>
-          Política de Privacidad
-        </Link>
-      </CookieConsent>
+      <ConsentBanner />
 
       <AppFooter />
     </BrowserRouter>
